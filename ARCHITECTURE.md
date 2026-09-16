@@ -123,8 +123,6 @@ steauditsphereops/
 │   ├── wbs/                           # stdlib-only validators
 │   ├── p0/                            # disposable feasibility proofs
 │   └── production/                    # thin guarded operator/test wrappers
-├── spikes/
-│   └── p0/                            # disposable proofs, never runtime imports
 ├── fixtures/                          # approved synthetic reference inputs
 ├── tests/
 │   └── production/                    # browser/system acceptance tests
@@ -382,7 +380,7 @@ The command boundary is an explicit allowlist, not a command-bus framework. The 
 4. Provider adapters return observations and outcomes; they cannot grant approval or mark a release eligible.
 5. DocType controllers call reusable schema/security/policy functions; they do not call the command dispatcher recursively.
 6. Cross-capability work belongs in explicit coordinators such as `application/handoffs.py`.
-7. Runtime code never imports from `spikes/`, repository scripts, test fixtures, or the demonstrator.
+7. Runtime code never imports from repository scripts, test fixtures, or the demonstrator.
 
 ## 6. Schema, persistence, and release safety
 
@@ -445,7 +443,7 @@ Clients see only authorized projections and published deliverables. They do not 
 
 | Test category | Location | Execution context |
 | --- | --- | --- |
-| P0 capability proofs | `spikes/p0/test_*.py` | Disposable proof site or explicitly authorized test tenant |
+| P0 capability proofs | `scripts/p0/` | Disposable proof site or explicitly authorized test tenant |
 | Python policy/use cases | `production/audit_practice/audit_practice/tests/test_*.py` | Pure tests where possible; Frappe site where required |
 | Schema/access/transactions/races | Named app test modules | Real disposable MariaDB/Frappe environment |
 | Browser journeys | `tests/production/*.spec.js` | Actual disposable Frappe application |
