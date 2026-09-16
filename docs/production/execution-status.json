@@ -2,7 +2,7 @@
   "schema": "steauditsphereops/execution-status@1",
   "repo": "nirzaf/steauditsphereops",
   "base": "main",
-  "updated": "2026-09-16T20:19:00Z",
+  "updated": "2026-09-16T20:26:00Z",
   "note": "Task 01 adopts the owner-ordered bootstrap ledger. Task 01 is BLOCKED by the missing source-custodian baseline disposition; later tasks remain NOT_STARTED. Agents propose state changes, ACCEPTED requires verified evidence plus required human decisions.",
   "tasks": [
     {
@@ -14,8 +14,8 @@
       "milestone": "R0 \u2014 Feasibility",
       "risk": "risk:low",
       "state": "BLOCKED",
-      "commit": "28884823f2fdba546a299d484d15f14661f641b5",
-      "tests": ["python3 scripts/wbs/validate_baseline.py --root . => exit 1: owner-approved baseline disposition is required", "python3 -m py_compile scripts/wbs/validate_baseline.py => pass", "validator edge checks for predecessor state, full commit identity, URL authority, and repository-contained evidence => pass", "git diff --check => pass"],
+      "commit": "f420403ec4ba3bdb618bb3c6506e91f66d017dbf",
+      "tests": ["git cat-file -e f420403ec4ba3bdb618bb3c6506e91f66d017dbf^{commit} => commit in agent/1-execution-baseline checkout", "python3 scripts/wbs/validate_baseline.py --root . => exit 1: owner-approved baseline disposition is required", "python3 -m py_compile scripts/wbs/validate_baseline.py => pass", "validator edge checks for predecessor state, full commit identity, URL authority, repository-contained evidence, and symlinked control files => pass", "git diff --check => pass"],
       "evidence_path": "docs/production/source-baseline.md",
       "blocker": "Owner-approved mapping and controlled v5 source disposition are missing."
     },
