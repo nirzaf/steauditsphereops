@@ -17,6 +17,16 @@ REQUIRED_BASELINE_MARKERS = (
     "nirzaf/steauditqts",
     "2898e44f6732c8b37c31ddfbeab0e322d7574ffe",
     "ANLCKQmu2G_lj5urAbbPvWKjY81cbKLwI_hulbiCl-vh367JYEms9Jcaq5Y9kM-iL4CUE9FkPfmtnXVhku8UHNGRwblC9TWu9u20eVplsnU",
+    "docs/requirements-manifest.md",
+    "cc20087acee6813b43c7d72edc123402e25316ed",
+    "src/v5Data.js",
+    "2b9270e806ad83871e481d24e49b9533592d371f",
+    "src/domain/traceability.js",
+    "1e65880eb3809dc3caf7bc0b0994510f4951718f",
+    "docs/demo-shell-architecture.md",
+    "80412d3aef032d8ea05143acd067fdabe38e5524",
+    "package.json",
+    "62de2d105a7b43228a84ff9373c02ef66d5d9d4c",
     "owner_approval:",
 )
 
@@ -102,7 +112,8 @@ def validate(root: Path) -> list[str]:
             evidence_path = task.get("evidence_path")
             evidence_is_url = isinstance(evidence_path, str) and evidence_path.startswith(("https://", "http://"))
             evidence_file = root / evidence_path if isinstance(evidence_path, str) and not Path(evidence_path).is_absolute() else None
-            if not isinstance(evidence_path, str) or not evidence_path.strip() or (not evidence_is_url and not evidence_file.is_file()):
+            evidence_exists = evidence_is_url or (evidence_file is not None and evidence_file.is_file())
+            if not isinstance(evidence_path, str) or not evidence_path.strip() or not evidence_exists:
                 errors.append(f"accepted task {task_id} needs a verifiable evidence path or URL")
 
     return errors
