@@ -56,14 +56,25 @@ def is_verifiable_url(value: object) -> bool:
     return parsed.scheme in {"http", "https"} and bool(parsed.netloc)
 
 
+def resolve_contained(root: Path, relative_path: str) -> Path | None:
+    try:
+        candidate = (root / relative_path).resolve()
+        candidate.relative_to(root)
+    except (OSError, RuntimeError, ValueError):
+        return None
+    return candidate
+
+
 def validate(root: Path) -> list[str]:
     root = root.resolve()
     errors: list[str] = []
-    baseline_path = root / "docs/production/source-baseline.md"
-    status_path = root / "docs/production/execution-status.json"
+    baseline_relative = "docs/production/source-baseline.md"
+    status_relative = "docs/production/execution-status.json"
+    baseline_path = resolve_contained(root, baseline_relative)
+    status_path = resolve_contained(root, status_relative)
 
-    if not baseline_path.is_file():
-        errors.append(f"missing {baseline_path}")
+    if baseline_path is None or not baseline_path.is_file():
+        errors.append(f"missing {root / baseline_relative}")
         baseline_text = ""
     else:
         baseline_text = baseline_path.read_text(encoding="utf-8")
@@ -84,8 +95,8 @@ def validate(root: Path) -> list[str]:
             if not v5_source or v5_source.group(1) not in {"PROVIDED", "CONFIRMED"}:
                 errors.append("approved baseline disposition needs a resolved controlled v5 source")
 
-    if not status_path.is_file():
-        errors.append(f"missing {status_path}")
+    if status_path is None or not status_path.is_file():
+        errors.append(f"missing {root / status_relative}")
         return errors
 
     try:
@@ -157,12 +168,7 @@ def validate(root: Path) -> list[str]:
             evidence_is_url = is_verifiable_url(evidence_path)
             evidence_file = None
             if isinstance(evidence_path, str) and not evidence_path.startswith(("https://", "http://")):
-                try:
-                    candidate = (root / evidence_path).resolve()
-                    candidate.relative_to(root)
-                except (OSError, RuntimeError, ValueError):
-                    candidate = None
-                evidence_file = candidate
+                evidence_file = resolve_contained(root, evidence_path)
             evidence_exists = evidence_is_url or (evidence_file is not None and evidence_file.is_file())
             if not isinstance(evidence_path, str) or not evidence_path.strip() or not evidence_exists:
                 errors.append(f"accepted task {task_id} needs a verifiable evidence path or URL")

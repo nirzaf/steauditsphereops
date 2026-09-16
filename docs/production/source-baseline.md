@@ -61,4 +61,4 @@ The WBS identifies the consolidated Google Doc as the execution baseline but als
 
 ## Resolution required
 
-Record an owner/source-custodian decision by replacing the `owner_approval: MISSING` marker with an approved disposition and adding the approval reference. Re-run `scripts/wbs/validate_baseline.py --root .` after the decision; until then task 01 remains `BLOCKED` and later WBS tasks cannot start.
+Record an owner/source-custodian decision by replacing all unresolved markers with an approved disposition: set `repository_mapping: APPROVED`, set `controlled_v5_source: PROVIDED` or `CONFIRMED`, replace `owner_approval: MISSING` with `owner_approval: APPROVED`, and add a non-empty `approval_reference`. Re-run `scripts/wbs/validate_baseline.py --root .` after the decision; until then task 01 remains `BLOCKED` and later WBS tasks cannot start.
