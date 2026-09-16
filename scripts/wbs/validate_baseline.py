@@ -46,8 +46,10 @@ def validate(root: Path) -> list[str]:
         errors.append(f"cannot parse execution status: {exc}")
         return errors
 
-    if status.get("schema_version") != 1:
-        errors.append("execution status schema_version must be 1")
+    if status.get("schema") != "steauditsphereops/execution-status@1":
+        errors.append("execution status schema must be steauditsphereops/execution-status@1")
+    if status.get("repo") != "nirzaf/steauditsphereops":
+        errors.append("execution status repo must be nirzaf/steauditsphereops")
     tasks = status.get("tasks")
     if not isinstance(tasks, list):
         errors.append("execution status tasks must be a list")
@@ -64,6 +66,12 @@ def validate(root: Path) -> list[str]:
         task_id = task.get("task_id", f"entry {index}")
         missing = {
             "task_id",
+            "wbs",
+            "issue",
+            "issue_url",
+            "github_label",
+            "milestone",
+            "risk",
             "state",
             "commit",
             "tests",
