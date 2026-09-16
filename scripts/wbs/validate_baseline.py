@@ -49,6 +49,23 @@ def resolves_to_commit(root: Path, commit: str) -> bool:
     return result.returncode == 0
 
 
+def is_integrated_commit(root: Path, commit: str) -> bool:
+    """Return whether commit is an ancestor of the protected main branch."""
+    try:
+        for ref in ("refs/remotes/origin/main", "refs/heads/main"):
+            result = subprocess.run(
+                ["git", "-C", str(root), "merge-base", "--is-ancestor", commit, ref],
+                check=False,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+            if result.returncode == 0:
+                return True
+    except OSError:
+        return False
+    return False
+
+
 def is_verifiable_url(value: object) -> bool:
     if not isinstance(value, str):
         return False
@@ -142,6 +159,28 @@ def validate(root: Path) -> list[str]:
         } - task.keys()
         if missing:
             errors.append(f"task {task_id} is missing fields: {', '.join(sorted(missing))}")
+        string_fields = {
+            "task_id",
+            "wbs",
+            "issue_url",
+            "github_label",
+            "milestone",
+            "risk",
+            "state",
+        }
+        for field in string_fields:
+            value = task.get(field)
+            if not isinstance(value, str) or not value.strip():
+                errors.append(f"task {task_id} field {field} must be a non-empty string")
+        issue = task.get("issue")
+        if isinstance(issue, bool) or not isinstance(issue, int) or issue < 1:
+            errors.append(f"task {task_id} field issue must be a positive integer")
+        if isinstance(task.get("issue_url"), str) and not is_verifiable_url(task["issue_url"]):
+            errors.append(f"task {task_id} field issue_url must be an absolute HTTP(S) URL")
+        for field in ("commit", "evidence_path", "blocker"):
+            value = task.get(field)
+            if value is not None and (not isinstance(value, str) or not value.strip()):
+                errors.append(f"task {task_id} field {field} must be a non-empty string or null")
         if task.get("state") not in LEGAL_STATES:
             errors.append(f"task {task_id} has illegal state: {task.get('state')!r}")
         if index and task.get("state") in {"IN_PROGRESS", "ACCEPTED"}:
@@ -155,12 +194,16 @@ def validate(root: Path) -> list[str]:
                 )
         if not isinstance(task.get("tests"), list):
             errors.append(f"task {task_id} tests must be a list")
+        elif any(not isinstance(test, str) or not test.strip() for test in task["tests"]):
+            errors.append(f"task {task_id} tests must contain non-empty strings")
         if task.get("state") == "ACCEPTED":
             commit = task.get("commit")
             if not isinstance(commit, str) or not re.fullmatch(r"[0-9a-f]{40}(?:[0-9a-f]{24})?", commit):
                 errors.append(f"accepted task {task_id} needs a full hexadecimal tested commit")
             elif not resolves_to_commit(root, commit):
                 errors.append(f"accepted task {task_id} commit does not resolve to a repository commit")
+            elif not is_integrated_commit(root, commit):
+                errors.append(f"accepted task {task_id} commit is not integrated into main")
             tests = task.get("tests")
             if not tests or any(not isinstance(test, str) or not test.strip() for test in tests):
                 errors.append(f"accepted task {task_id} needs observable test results")
