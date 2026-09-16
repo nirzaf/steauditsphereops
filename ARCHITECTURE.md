@@ -91,7 +91,7 @@ steauditsphereops/
 ├── README.md
 ├── ARCHITECTURE.md
 ├── AGENTS.md
-├── SYSTEM_PROMPT.md
+├── SYSTEM_PROMPT.md                  # workspace-local agent context; not a production artifact
 ├── CODEOWNERS                         # only when governance creates it
 ├── CONTRIBUTING.md                    # only when governance creates it
 ├── cubic.yaml                         # only when governance creates it
@@ -478,7 +478,7 @@ A missing command, zero collected tests, mock, dry run, or skipped live proof is
 | Source | Authority |
 | --- | --- |
 | [AGENTS.md](AGENTS.md) | Execution, authorization, safety, review, and lifecycle policy |
-| [SYSTEM_PROMPT.md](SYSTEM_PROMPT.md) | Engineering-agent mission, candidate stack, task sequencing, invariants, tests, and evidence handoff |
+| `SYSTEM_PROMPT.md` (workspace-local) | Engineering-agent mission, candidate stack, task sequencing, invariants, tests, and evidence handoff |
 | `docs/NN-*.md` | Exact task scope, dependencies, target files, and acceptance criteria |
 | `docs/production/source-baseline.md` | Approved source and repository/path mapping, when created |
 | `docs/production/execution-status.json` | Observable dependency and acceptance evidence, when created |
@@ -538,7 +538,7 @@ The goal is predictable locations, explicit dependencies, and a small review sur
 
 - Supplied reference: `AuditSphereOps_PROJECT_STRUCTURE.md` (local attachment; proposed organization guide).
 - [Repository `AGENTS.md`](AGENTS.md)
-- [Engineering system prompt](SYSTEM_PROMPT.md)
+- `SYSTEM_PROMPT.md` (workspace-local engineering system prompt)
 - [WBS 01 — execution contract and baseline](docs/01-execution-contract-and-baseline.md)
 - [WBS 03 — toolchain and version contract](docs/03-toolchain-and-version-contract.md)
 - [WBS 09 — production app and test harness](docs/09-production-app-and-test-harness.md)

@@ -20,7 +20,7 @@ The governing execution contract and complete WBS index are in [task 01](docs/01
 
 ## Engineering-agent context
 
-[`SYSTEM_PROMPT.md`](SYSTEM_PROMPT.md) is the repository-local engineering brief. It complements `AGENTS.md`; it does not override the user request, owner-approved decisions, or the numbered WBS.
+`SYSTEM_PROMPT.md` is the workspace-local engineering brief. It complements `AGENTS.md`; it does not override the user request, owner-approved decisions, or the numbered WBS. It is intentionally kept outside this documentation PR because it is agent configuration rather than a production artifact.
 
 Its essential operating context is:
 
@@ -178,7 +178,7 @@ Current repository:
 README.md                 Project overview and roadmap
 ARCHITECTURE.md           Target package boundaries and dependency map
 AGENTS.md                 Execution, security, review, and lifecycle policy
-SYSTEM_PROMPT.md          Engineering-agent mission and operating brief
+SYSTEM_PROMPT.md          Workspace-local engineering-agent mission and operating brief
 docs/01-*.md … 72-*.md   Ordered WBS task specifications
 ```
 
