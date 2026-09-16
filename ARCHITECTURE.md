@@ -28,7 +28,7 @@ The platform boundary is fixed by the WBS:
 - Observed records protection and legal holds govern retained evidence.
 - An independently administered checkpoint and recovery epoch protect release operations across restore.
 
-The architecture does not add an initial FastAPI service, Kafka, a generic workflow engine, a replacement DMS, a duplicate global store, a .NET rewrite, or a fork of Frappe/ERPNext. Optional signature, screening, analytics, and checkpoint providers require an approved capability, license, and manual fallback disposition.
+The architecture does not add an initial FastAPI service, Kafka, a generic workflow engine, a replacement DMS, a duplicate global store, a .NET rewrite, or a fork of Frappe/ERPNext. Optional signature, screening, and analytics integrations require an approved capability, license, and manual fallback disposition. The independent checkpoint and recovery-epoch provider is mandatory for release and recovery; release remains blocked until it is independently verified.
 
 Task 01 retains an unresolved mapping from the inherited `steauditqts` execution reference to this repository. That owner-approved mapping must be recorded before task 01 acceptance; the demonstrator must not be copied or silently converted into the production application.
 
@@ -446,7 +446,7 @@ Clients see only authorized projections and published deliverables. They do not 
 | Test category | Location | Execution context |
 | --- | --- | --- |
 | P0 capability proofs | `spikes/p0/test_*.py` | Disposable proof site or explicitly authorized test tenant |
-| Python policy/use cases | `audit_practice/tests/test_*.py` | Pure tests where possible; Frappe site where required |
+| Python policy/use cases | `production/audit_practice/audit_practice/tests/test_*.py` | Pure tests where possible; Frappe site where required |
 | Schema/access/transactions/races | Named app test modules | Real disposable MariaDB/Frappe environment |
 | Browser journeys | `tests/production/*.spec.js` | Actual disposable Frappe application |
 | Operational drills | `scripts/production/` + task-owned tests | Approved isolated environment |
