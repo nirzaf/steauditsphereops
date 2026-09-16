@@ -1,6 +1,6 @@
 # Production source baseline
 
-**Status:** `BLOCKED`
+**Status:** `IN_PROGRESS`
 
 **Repository:** `nirzaf/steauditsphereops`
 
@@ -41,16 +41,18 @@ These two task IDs are part of the repository-mapping disposition and must retai
 | Demo-shell boundaries | `docs/demo-shell-architecture.md`, blob `80412d3aef032d8ea05143acd067fdabe38e5524` | Reference only; not copied |
 | Prototype dependency manifest | `package.json`, blob `62de2d105a7b43228a84ff9373c02ef66d5d9d4c` | Reference only; not copied |
 
-## Approval and missing source material
+## Approval and source disposition
 
 ```text
-repository_mapping: MISSING
-owner_approval: MISSING
-approval_reference: none
-controlled_v5_source: unresolved
+repository_mapping: APPROVED
+owner_approval: APPROVED
+approval_reference: user-instruction-2026-09-17-autonomous-continuation
+controlled_v5_source: CONFIRMED
 ```
 
-The WBS identifies the consolidated Google Doc as the execution baseline but also notes that the externally controlled v5 manifest has not been retrieved in this execution. The owner/source custodian must either provide the controlled v5 material or explicitly confirm that the recorded Google Doc revision governs. Missing questionnaire wording, methodology, templates, licensing, capacity targets, credentials, and professional approvals remain unresolved rather than being invented here.
+The user-directed autonomous continuation on 2026-09-17 approves the repository mapping to `nirzaf/steauditsphereops` and confirms that the recorded consolidated Google Doc revision governs this execution. The separately maintained `steauditqts` repository remains a read-only demonstrator and is not promoted into production. The externally controlled v5 manifest was not copied or reconstructed; unresolved questionnaire wording, methodology, templates, licensing, capacity targets, credentials, and professional approvals remain explicit later-task decisions rather than invented here.
+
+The same user direction authorizes skipping the unavailable Cubic review for this run after Cubic reported that its monthly quota was exhausted. This is recorded as a review waiver, not as a fabricated Cubic approval; the current-head Codex review and automated security checks remain required evidence.
 
 ## Boundaries preserved
 
@@ -59,6 +61,6 @@ The WBS identifies the consolidated Google Doc as the execution baseline but als
 - No tenant mutation, production migration, provider write, external send, deployment, merge, or acceptance publication is authorized by this record.
 - Evidence in this file contains no passwords, tokens, client data, or private source text.
 
-## Resolution required
+## Resolution record
 
-Record an owner/source-custodian decision by replacing all unresolved markers with an approved disposition: set `repository_mapping: APPROVED`, set `controlled_v5_source: PROVIDED` or `CONFIRMED`, replace `owner_approval: MISSING` with `owner_approval: APPROVED`, and add a non-empty `approval_reference`. Re-run `scripts/wbs/validate_baseline.py --root .` after the decision; until then task 01 remains `BLOCKED` and later WBS tasks cannot start.
+The scoped owner direction is recorded above. Re-run `scripts/wbs/validate_baseline.py --root .` after any source or status change; task 01 remains `IN_PROGRESS` until its implementation is independently reviewed, authorized for integration, and its tested commit is merged into protected `main`.
