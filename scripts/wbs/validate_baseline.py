@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -33,8 +34,12 @@ def validate(root: Path) -> list[str]:
         for marker in REQUIRED_BASELINE_MARKERS:
             if marker not in baseline_text:
                 errors.append(f"source baseline is missing reference: {marker}")
-        if "owner_approval: APPROVED" not in baseline_text:
+        approval = re.search(r"(?m)^owner_approval:\s*(\S+)\s*$", baseline_text)
+        reference = re.search(r"(?m)^approval_reference:\s*(\S+)\s*$", baseline_text)
+        if not approval or approval.group(1) != "APPROVED":
             errors.append("owner-approved baseline disposition is required")
+        elif not reference or reference.group(1).lower() in {"none", "null", "missing"}:
+            errors.append("approved baseline disposition needs a non-empty approval reference")
 
     if not status_path.is_file():
         errors.append(f"missing {status_path}")
@@ -46,6 +51,9 @@ def validate(root: Path) -> list[str]:
         errors.append(f"cannot parse execution status: {exc}")
         return errors
 
+    if not isinstance(status, dict):
+        errors.append("execution status root must be an object")
+        return errors
     if status.get("schema") != "steauditsphereops/execution-status@1":
         errors.append("execution status schema must be steauditsphereops/execution-status@1")
     if status.get("repo") != "nirzaf/steauditsphereops":
@@ -85,9 +93,17 @@ def validate(root: Path) -> list[str]:
         if not isinstance(task.get("tests"), list):
             errors.append(f"task {task_id} tests must be a list")
         if task.get("state") == "ACCEPTED":
-            for field in ("commit", "evidence_path"):
-                if not task.get(field):
-                    errors.append(f"accepted task {task_id} needs {field}")
+            commit = task.get("commit")
+            if not isinstance(commit, str) or not re.fullmatch(r"[0-9a-f]{7,64}", commit):
+                errors.append(f"accepted task {task_id} needs a hexadecimal tested commit")
+            tests = task.get("tests")
+            if not tests or any(not isinstance(test, str) or not test.strip() for test in tests):
+                errors.append(f"accepted task {task_id} needs observable test results")
+            evidence_path = task.get("evidence_path")
+            evidence_is_url = isinstance(evidence_path, str) and evidence_path.startswith(("https://", "http://"))
+            evidence_file = root / evidence_path if isinstance(evidence_path, str) and not Path(evidence_path).is_absolute() else None
+            if not isinstance(evidence_path, str) or not evidence_path.strip() or (not evidence_is_url and not evidence_file.is_file()):
+                errors.append(f"accepted task {task_id} needs a verifiable evidence path or URL")
 
     return errors
 

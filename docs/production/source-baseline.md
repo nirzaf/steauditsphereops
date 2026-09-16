@@ -22,6 +22,13 @@ This record separates the existing read-only demonstrator from the proposed prod
 
 The inherited task text says to work in `steauditqts`, while the approved repository contract names `steauditsphereops` as the execution repository. This mismatch must be resolved by an owner/source-custodian approval recorded here before task 01 can be accepted. No production path is redirected silently.
 
+### Demonstrator boundary for later tasks
+
+- **WBS 09:** the production app, test wrapper, and production CI are created under `steauditsphereops`; the Vue/Cloudflare demonstrator remains untouched.
+- **WBS 69:** demo-shell preservation and walkthrough regression run against the separately pinned `steauditqts` checkout; its synthetic state, credentials, and deployment are never promoted into production.
+
+These two task IDs are part of the repository-mapping disposition and must retain separate evidence and ownership.
+
 ## Controlled baseline references
 
 | Reference | Revision or identity | Observation |
