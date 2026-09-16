@@ -6,8 +6,10 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import subprocess
 import sys
 from pathlib import Path
+from urllib.parse import urlparse
 
 
 EXPECTED_TASK_IDS = [f"{number:02d}" for number in range(1, 73)]
@@ -27,11 +29,35 @@ REQUIRED_BASELINE_MARKERS = (
     "80412d3aef032d8ea05143acd067fdabe38e5524",
     "package.json",
     "62de2d105a7b43228a84ff9373c02ef66d5d9d4c",
+    "repository_mapping:",
+    "controlled_v5_source:",
     "owner_approval:",
 )
 
 
+def resolves_to_commit(root: Path, commit: str) -> bool:
+    """Return whether commit names a commit object in the repository."""
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(root), "cat-file", "-e", f"{commit}^{{commit}}"],
+            check=False,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+    except OSError:
+        return False
+    return result.returncode == 0
+
+
+def is_verifiable_url(value: object) -> bool:
+    if not isinstance(value, str):
+        return False
+    parsed = urlparse(value)
+    return parsed.scheme in {"http", "https"} and bool(parsed.netloc)
+
+
 def validate(root: Path) -> list[str]:
+    root = root.resolve()
     errors: list[str] = []
     baseline_path = root / "docs/production/source-baseline.md"
     status_path = root / "docs/production/execution-status.json"
@@ -48,8 +74,15 @@ def validate(root: Path) -> list[str]:
         reference = re.search(r"(?m)^approval_reference:\s*(\S+)\s*$", baseline_text)
         if not approval or approval.group(1) != "APPROVED":
             errors.append("owner-approved baseline disposition is required")
-        elif not reference or reference.group(1).lower() in {"none", "null", "missing"}:
-            errors.append("approved baseline disposition needs a non-empty approval reference")
+        else:
+            if not reference or reference.group(1).lower() in {"none", "null", "missing"}:
+                errors.append("approved baseline disposition needs a non-empty approval reference")
+            mapping = re.search(r"(?m)^repository_mapping:\s*(\S+)\s*$", baseline_text)
+            if not mapping or mapping.group(1) not in {"APPROVED", "CONFIRMED"}:
+                errors.append("approved baseline disposition needs a resolved repository mapping")
+            v5_source = re.search(r"(?m)^controlled_v5_source:\s*(\S+)\s*$", baseline_text)
+            if not v5_source or v5_source.group(1) not in {"PROVIDED", "CONFIRMED"}:
+                errors.append("approved baseline disposition needs a resolved controlled v5 source")
 
     if not status_path.is_file():
         errors.append(f"missing {status_path}")
@@ -100,18 +133,36 @@ def validate(root: Path) -> list[str]:
             errors.append(f"task {task_id} is missing fields: {', '.join(sorted(missing))}")
         if task.get("state") not in LEGAL_STATES:
             errors.append(f"task {task_id} has illegal state: {task.get('state')!r}")
+        if index and task.get("state") in {"IN_PROGRESS", "ACCEPTED"}:
+            previous_task = tasks[index - 1]
+            previous_state = previous_task.get("state") if isinstance(previous_task, dict) else None
+            previous_id = previous_task.get("task_id", "previous") if isinstance(previous_task, dict) else "previous"
+            if previous_state != "ACCEPTED":
+                errors.append(
+                    f"task {task_id} cannot be {task.get('state')} until task "
+                    f"{previous_id} is ACCEPTED"
+                )
         if not isinstance(task.get("tests"), list):
             errors.append(f"task {task_id} tests must be a list")
         if task.get("state") == "ACCEPTED":
             commit = task.get("commit")
-            if not isinstance(commit, str) or not re.fullmatch(r"[0-9a-f]{7,64}", commit):
-                errors.append(f"accepted task {task_id} needs a hexadecimal tested commit")
+            if not isinstance(commit, str) or not re.fullmatch(r"[0-9a-f]{40}(?:[0-9a-f]{24})?", commit):
+                errors.append(f"accepted task {task_id} needs a full hexadecimal tested commit")
+            elif not resolves_to_commit(root, commit):
+                errors.append(f"accepted task {task_id} commit does not resolve to a repository commit")
             tests = task.get("tests")
             if not tests or any(not isinstance(test, str) or not test.strip() for test in tests):
                 errors.append(f"accepted task {task_id} needs observable test results")
             evidence_path = task.get("evidence_path")
-            evidence_is_url = isinstance(evidence_path, str) and evidence_path.startswith(("https://", "http://"))
-            evidence_file = root / evidence_path if isinstance(evidence_path, str) and not Path(evidence_path).is_absolute() else None
+            evidence_is_url = is_verifiable_url(evidence_path)
+            evidence_file = None
+            if isinstance(evidence_path, str) and not evidence_path.startswith(("https://", "http://")):
+                try:
+                    candidate = (root / evidence_path).resolve()
+                    candidate.relative_to(root)
+                except (OSError, RuntimeError, ValueError):
+                    candidate = None
+                evidence_file = candidate
             evidence_exists = evidence_is_url or (evidence_file is not None and evidence_file.is_file())
             if not isinstance(evidence_path, str) or not evidence_path.strip() or not evidence_exists:
                 errors.append(f"accepted task {task_id} needs a verifiable evidence path or URL")

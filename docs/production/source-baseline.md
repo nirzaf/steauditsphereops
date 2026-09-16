@@ -44,6 +44,7 @@ These two task IDs are part of the repository-mapping disposition and must retai
 ## Approval and missing source material
 
 ```text
+repository_mapping: MISSING
 owner_approval: MISSING
 approval_reference: none
 controlled_v5_source: unresolved
