@@ -2,7 +2,7 @@
   "schema": "steauditsphereops/execution-status@1",
   "repo": "nirzaf/steauditsphereops",
   "base": "main",
-  "updated": "2026-09-16T19:46:00Z",
+  "updated": "2026-09-16T19:49:00Z",
   "note": "Task 01 adopts the owner-ordered bootstrap ledger. Task 01 is BLOCKED by the missing source-custodian baseline disposition; later tasks remain NOT_STARTED. Agents propose state changes, ACCEPTED requires verified evidence plus required human decisions.",
   "tasks": [
     {
@@ -14,7 +14,7 @@
       "milestone": "R0 \u2014 Feasibility",
       "risk": "risk:low",
       "state": "BLOCKED",
-      "commit": null,
+      "commit": "fe4733c06a11405f3d79fbebcaa5626fad04bc53",
       "tests": ["python3 scripts/wbs/validate_baseline.py --root . => exit 1: owner-approved baseline disposition is required"],
       "evidence_path": "docs/production/source-baseline.md",
       "blocker": "Owner-approved mapping and controlled v5 source disposition are missing."
