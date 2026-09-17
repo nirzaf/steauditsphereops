@@ -1,0 +1,31 @@
+{
+  "actions": [],
+  "allow_rename": 0,
+  "autoname": "hash",
+  "creation": "2026-09-17 00:00:00.000000",
+  "doctype": "DocType",
+  "engine": "InnoDB",
+  "field_order": ["client_id", "period", "generation", "revision", "record_type", "payload_digest"],
+  "fields": [
+    {"fieldname": "client_id", "fieldtype": "Data", "label": "Client ID", "reqd": 1},
+    {"fieldname": "period", "fieldtype": "Data", "label": "Period", "reqd": 1},
+    {"fieldname": "generation", "fieldtype": "Int", "label": "Generation", "reqd": 1},
+    {"fieldname": "revision", "fieldtype": "Int", "label": "Revision", "reqd": 1},
+    {"fieldname": "record_type", "fieldtype": "Data", "label": "Record Type", "reqd": 1},
+    {"fieldname": "payload_digest", "fieldtype": "Data", "label": "Payload Digest", "reqd": 1}
+  ],
+  "index_web_pages_for_search": 0,
+  "istable": 0,
+  "links": [],
+  "modified": "2026-09-17 00:00:00.000000",
+  "module": "POC",
+  "name": "POC Record",
+  "owner": "Administrator",
+  "permissions": [
+    {"create": 1, "delete": 0, "email": 0, "export": 0, "print": 0, "read": 1, "report": 0, "role": "System Manager", "share": 0, "write": 1}
+  ],
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "states": [],
+  "track_changes": 1
+}

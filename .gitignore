@@ -1,6 +1,9 @@
 .DS_Store
 *.DS_Store
 .local/
+# P0 runner evidence and disposable environment state (keep local only).
+.local/p0-evidence/
+.local/p0-env/
 *.pyc
 __pycache__/
 .env

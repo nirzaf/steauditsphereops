@@ -1,0 +1,6 @@
+app_name = "audit_poc"
+app_title = "Audit POC"
+app_publisher = "STE AuditSphere Ops"
+app_description = "Disposable P0 feasibility spike; not production code."
+app_email = "engineering@example.invalid"
+app_license = "MIT"

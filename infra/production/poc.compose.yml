@@ -1,0 +1,46 @@
+services:
+  mariadb:
+    image: mariadb:10.6.18@sha256:f7cc395e35257dfb332ad73a80c36e74a6990c209519760c7b9bba6b2ab47a86
+    environment:
+      MARIADB_ROOT_PASSWORD: ${POC_DB_PASSWORD:?POC_DB_PASSWORD is required for live POC use}
+      MARIADB_DATABASE: audit_poc
+    healthcheck:
+      test: ["CMD-SHELL", "mariadb-admin ping -uroot -p\"$${MARIADB_ROOT_PASSWORD}\" --silent"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks: [poc]
+
+  redis:
+    image: redis:6.2.16@sha256:d74db717c8b8a7be8e3cc949b4ad7cf4b87276ff2a47bb487ef0f5f05430c0f9
+    command: ["redis-server", "--appendonly", "no"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks: [poc]
+
+  frappe:
+    image: frappe/erpnext:v15.99.0@sha256:c7c653a066f5a72a7aff8d913013008c7f360e7571002d839e0fcf69651304e7
+    command: ["bash", "-lc", "sleep infinity"]
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      DB_HOST: mariadb
+      REDIS_CACHE: redis://redis:6379
+      REDIS_QUEUE: redis://redis:6379
+      REDIS_SOCKETIO: redis://redis:6379
+      AUDIT_SITE: ${AUDIT_SITE:-auditflow-poc.localhost}
+      AUDIT_POC_ENV: ${AUDIT_POC_ENV:-POC}
+    volumes:
+      - ../../spikes/p0/audit_poc:/workspace/audit_poc:ro
+    networks: [poc]
+
+networks:
+  poc:
+    name: steauditsphereops-poc
+    driver: bridge
