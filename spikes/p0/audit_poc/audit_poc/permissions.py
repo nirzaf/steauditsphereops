@@ -39,4 +39,7 @@ def poc_record_query(user: str | None = None) -> str:
 
 
 def poc_record_has_permission(doc: object, user: str | None = None, ptype: str | None = None) -> bool:
-    return False if not doc else bool(getattr(doc, "client_id", None) and getattr(doc, "period", None))
+    # No authenticated assignment context exists in the disposable POC yet.
+    # Allowing access based only on record fields would bypass tenant/client
+    # isolation through direct Desk or generic-API permission checks.
+    return False
