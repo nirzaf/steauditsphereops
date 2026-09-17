@@ -12,6 +12,8 @@ class IdentityIsolationTests(unittest.TestCase):
 
     def test_subject_mapping_does_not_use_email(self) -> None:
         self.assertEqual(subject_key("tenant-a", "subject-1"), "tenant-a:subject-1")
+        changed_email = {**self.client_a, "email": "reused@example.invalid"}
+        self.assertEqual(subject_key(changed_email["tenant_id"], changed_email["subject_id"]), "tenant-a:subject-1")
         self.assertNotEqual(subject_key("tenant-a", "subject-1"), subject_key("tenant-a", "subject-2"))
 
     def test_wrong_tenant_scope_and_revocation_deny(self) -> None:
@@ -19,9 +21,11 @@ class IdentityIsolationTests(unittest.TestCase):
         wrong_tenant = {**self.client_a, "tenant_id": "tenant-b"}
         wrong_client = {**self.client_a, "client_id": "client-b"}
         revoked = {**self.client_a, "revoked": True}
+        disabled = {**self.client_a, "disabled": True}
         self.assertEqual(access_decision(wrong_tenant, self.record_a)[0], False)
         self.assertEqual(access_decision(wrong_client, self.record_a)[0], False)
         self.assertEqual(access_decision(revoked, self.record_a)[0], False)
+        self.assertEqual(access_decision(disabled, self.record_a), (False, "ACTOR_DISABLED"))
 
     def test_client_cannot_export(self) -> None:
         self.assertEqual(access_decision(self.client_a, self.record_a, "export"), (False, "ACTION_NOT_ASSIGNED"))

@@ -17,6 +17,8 @@ def scope_key(client_id: str, period: str) -> str:
 
 def access_decision(actor: dict[str, object], record: dict[str, object], action: str = "read") -> tuple[bool, str]:
     """Return a conservative decision for mock permission experiments."""
+    if actor.get("disabled"):
+        return False, "ACTOR_DISABLED"
     if actor.get("revoked"):
         return False, "ACTOR_REVOKED"
     if actor.get("tenant_id") != record.get("tenant_id"):
