@@ -28,7 +28,7 @@
       "milestone": "R0 \u2014 Feasibility",
       "risk": "risk:high",
       "state": "IN_PROGRESS",
-      "commit": null,
+      "commit": "bf204ccaf8e8d2bef7dfa24fce43113c689ffb11",
       "tests": [
         "python3 scripts/wbs/validate_contracts.py --root . => pass",
         "python3 scripts/wbs/validate_contracts.py --root . --negative-fixture => pass; G8 -> G10 mutation rejected",
