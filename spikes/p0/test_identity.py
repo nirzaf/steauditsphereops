@@ -1,0 +1,31 @@
+from __future__ import annotations
+
+import unittest
+
+from spikes.p0.audit_poc.audit_poc.permissions import access_decision, subject_key
+
+
+class IdentityIsolationTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.client_a = {"tenant_id": "tenant-a", "client_id": "client-a", "subject_id": "subject-1", "email": "same@example.invalid", "role": "client"}
+        self.record_a = {"tenant_id": "tenant-a", "client_id": "client-a"}
+
+    def test_subject_mapping_does_not_use_email(self) -> None:
+        self.assertEqual(subject_key("tenant-a", "subject-1"), "tenant-a:subject-1")
+        self.assertNotEqual(subject_key("tenant-a", "subject-1"), subject_key("tenant-a", "subject-2"))
+
+    def test_wrong_tenant_scope_and_revocation_deny(self) -> None:
+        self.assertEqual(access_decision(self.client_a, self.record_a), (True, "ALLOW"))
+        wrong_tenant = {**self.client_a, "tenant_id": "tenant-b"}
+        wrong_client = {**self.client_a, "client_id": "client-b"}
+        revoked = {**self.client_a, "revoked": True}
+        self.assertEqual(access_decision(wrong_tenant, self.record_a)[0], False)
+        self.assertEqual(access_decision(wrong_client, self.record_a)[0], False)
+        self.assertEqual(access_decision(revoked, self.record_a)[0], False)
+
+    def test_client_cannot_export(self) -> None:
+        self.assertEqual(access_decision(self.client_a, self.record_a, "export"), (False, "ACTION_NOT_ASSIGNED"))
+
+
+if __name__ == "__main__":
+    unittest.main()
