@@ -114,7 +114,7 @@
       "milestone": "R0 \u2014 Feasibility",
       "risk": "risk:high",
       "state": "IN_PROGRESS",
-      "commit": null,
+      "commit": "6f90a3c460a80487865b14f3474d09dd6ba0ce49",
       "tests": [
         "python3 -m unittest spikes/p0/test_identity.py spikes/p0/test_documents.py spikes/p0/test_records.py spikes/p0/test_build.py => pass (10 tests)",
         "python3 scripts/p0/run.py --suite identity --mode mock => MOCK_PASS",
