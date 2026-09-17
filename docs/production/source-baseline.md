@@ -1,6 +1,6 @@
 # Production source baseline
 
-**Status:** `IN_PROGRESS`
+**Status:** `ACCEPTED`
 
 **Repository:** `nirzaf/steauditsphereops`
 
@@ -18,9 +18,9 @@ This record separates the existing read-only demonstrator from the proposed prod
 | Read-only reference demonstrator | `nirzaf/steauditqts` | Separate repository; no writes performed |
 | Demonstrator planning commit | `2898e44f6732c8b37c31ddfbeab0e322d7574ffe` | Observed public commit |
 | Current execution-repository commit at task start | `265817a0b1792e839fe5f77f07e2eb9b8898c842` | Documentation-only base |
-| Owner-approved mapping from inherited task-01 target to this repository | Not supplied | **BLOCKER** |
+| Owner-approved mapping from inherited task-01 target to this repository | Approved by the recorded owner direction | **ACCEPTED** |
 
-The inherited task text says to work in `steauditqts`, while the approved repository contract names `steauditsphereops` as the execution repository. This mismatch must be resolved by an owner/source-custodian approval recorded here before task 01 can be accepted. No production path is redirected silently.
+The inherited task text says to work in `steauditqts`, while the approved repository contract names `steauditsphereops` as the execution repository. The owner/source-custodian disposition is recorded below; no production path is redirected silently.
 
 ### Demonstrator boundary for later tasks
 
@@ -33,7 +33,7 @@ These two task IDs are part of the repository-mapping disposition and must retai
 
 | Reference | Revision or identity | Observation |
 | --- | --- | --- |
-| Approved functional requirements and architecture | [Google Doc](https://docs.google.com/document/d/1W32RQd4pfetfNk8lANeM4NsdiZ1GW68aDBrBg4gdSxs), revision `ANLCKQmu2G_lj5urAbbPvWKjY81cbKLwI_hulbiCl-vh367JYEms9Jcaq5Y9kM-iL4CUE9FkPfmtnXVhku8UHNGRwblC9TWu9u20eVplsnU` | Revision recorded in WBS 01; owner disposition still required |
+| Approved functional requirements and architecture | [Google Doc](https://docs.google.com/document/d/1W32RQd4pfetfNk8lANeM4NsdiZ1GW68aDBrBg4gdSxs), revision `ANLCKQmu2G_lj5urAbbPvWKjY81cbKLwI_hulbiCl-vh367JYEms9Jcaq5Y9kM-iL4CUE9FkPfmtnXVhku8UHNGRwblC9TWu9u20eVplsnU` | Recorded revision confirmed as governing baseline |
 | Demonstrator source commit | `2898e44f6732c8b37c31ddfbeab0e322d7574ffe` | Public Git commit observed on 2026-09-16 |
 | Requirements manifest | `docs/requirements-manifest.md`, blob `cc20087acee6813b43c7d72edc123402e25316ed` | Reference only; not copied |
 | v5 gates/data catalogue | `src/v5Data.js`, blob `2b9270e806ad83871e481d24e49b9533592d371f` | Reference only; not copied |
@@ -52,15 +52,15 @@ controlled_v5_source: CONFIRMED
 
 The user-directed autonomous continuation on 2026-09-17 approves the repository mapping to `nirzaf/steauditsphereops` and confirms that the recorded consolidated Google Doc revision governs this execution. The separately maintained `steauditqts` repository remains a read-only demonstrator and is not promoted into production. The externally controlled v5 manifest was not copied or reconstructed; unresolved questionnaire wording, methodology, templates, licensing, capacity targets, credentials, and professional approvals remain explicit later-task decisions rather than invented here.
 
-The same user direction authorizes skipping the unavailable Cubic review for this run after Cubic reported that its monthly quota was exhausted. This is recorded as a review waiver, not as a fabricated Cubic approval; the current-head Codex review and automated security checks remain required evidence.
+The same user direction authorizes skipping the unavailable Cubic review for this run after Cubic reported that its monthly quota was exhausted. This is recorded as a review waiver, not as a fabricated Cubic approval; current-head Codex and automated security evidence are recorded in the execution ledger.
 
 ## Boundaries preserved
 
 - The demonstrator's Vue/Vite application, `shared/`, worker, D1 database, R2 storage, synthetic data, credentials, and deployment settings remain outside this repository.
 - The proposed Frappe application is not implemented by this baseline record.
-- No tenant mutation, production migration, provider write, external send, deployment, merge, or acceptance publication is authorized by this record.
+- No tenant mutation, production migration, provider write, external send, or deployment is authorized by this record. The protected merge and acceptance publication were performed through the reviewed WBS-01 PR sequence.
 - Evidence in this file contains no passwords, tokens, client data, or private source text.
 
-## Resolution record
+## Acceptance record
 
-The scoped owner direction is recorded above. Re-run `scripts/wbs/validate_baseline.py --root .` after any source or status change; task 01 remains `IN_PROGRESS` until its implementation is independently reviewed, authorized for integration, and its tested commit is merged into protected `main`.
+The scoped owner direction is recorded above. The implementation commit `f2eafa371ed62737cde967dc5d128e825745e97d` is integrated through merge commit `6a2735f1fa9497c4c80bb7dbaad5de5abf306746`; task 01 acceptance is published in the protected-main ledger.

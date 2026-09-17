@@ -2,8 +2,8 @@
   "schema": "steauditsphereops/execution-status@1",
   "repo": "nirzaf/steauditsphereops",
   "base": "main",
-  "updated": "2026-09-17T00:00:00Z",
-  "note": "Task 01 records the user-directed repository/source disposition and an explicit Cubic-quota review waiver. Task 01 remains IN_PROGRESS until current-head Codex/security evidence, authorized integration, and protected-main merge are complete; later tasks remain NOT_STARTED.",
+  "updated": "2026-09-17T03:30:00Z",
+  "note": "Task 01 is ACCEPTED after the owner-directed source disposition, current-head Codex/GitGuardian evidence, explicit Cubic-quota waiver, protected-main integration, and published acceptance record. Later tasks remain NOT_STARTED and retain strict predecessor gates.",
   "tasks": [
     {
       "task_id": "01",
@@ -13,11 +13,11 @@
       "github_label": "agent:ready",
       "milestone": "R0 \u2014 Feasibility",
       "risk": "risk:low",
-      "state": "IN_PROGRESS",
+      "state": "ACCEPTED",
       "commit": "f2eafa371ed62737cde967dc5d128e825745e97d",
-      "tests": ["git cat-file -e f2eafa371ed62737cde967dc5d128e825745e97d^{commit} => pass in agent/1-source-disposition checkout", "git merge-base --is-ancestor 446aa294a75ac19d85ec608bceb91fe3bcfcbdd6 refs/heads/main => pass for protected base", "python3 scripts/wbs/validate_baseline.py --root . => pass after recorded repository/source disposition", "python3 -m py_compile scripts/wbs/validate_baseline.py => pass", "python3 -m json.tool docs/production/execution-status.json => pass", "validator edge checks for predecessor state, typed ledger fields, full commit identity, URL authority, repository-contained evidence, and symlinked control files => pass", "git diff --check => pass", "Cubic current-head review => explicitly waived by user instruction after quota-neutral result; not represented as approval", "current-head Codex/GitGuardian checks => pending after this repair commit"],
+      "tests": ["git cat-file -e f2eafa371ed62737cde967dc5d128e825745e97d^{commit} => pass on protected main", "git merge-base --is-ancestor f2eafa371ed62737cde967dc5d128e825745e97d refs/remotes/origin/main => pass", "git cat-file -e 6a2735f1fa9497c4c80bb7dbaad5de5abf306746^{commit} => pass; WBS-01 repair merge commit", "python3 scripts/wbs/validate_baseline.py --root . => pass on integrated source disposition", "python3 -m py_compile scripts/wbs/validate_baseline.py => pass", "python3 -m json.tool docs/production/execution-status.json => pass", "validator edge checks for predecessor state, typed ledger fields, full commit identity, URL authority, repository-contained evidence, and symlinked control files => pass", "git diff --check => pass", "GitGuardian on PR #76 => success", "Codex current-head review on PR #76 => no findings", "Cubic current-head review => explicitly waived by user instruction after quota-neutral result; not represented as approval"],
       "evidence_path": "docs/production/source-baseline.md",
-      "blocker": "Awaiting current-head Codex/GitGuardian evidence and this repair PR's protected-main integration; Cubic review is explicitly waived for this run because the provider quota is exhausted."
+      "blocker": null
     },
     {
       "task_id": "02",
