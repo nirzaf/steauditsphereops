@@ -81,7 +81,7 @@
       "milestone": "R0 \u2014 Feasibility",
       "risk": "risk:high",
       "state": "IN_PROGRESS",
-      "commit": null,
+      "commit": "8a2acce26c0281559154bdf8cb613c4e73549d62",
       "tests": [
         "python3 scripts/p0/provision_local.py --validate-only => pass",
         "python3 scripts/p0/run.py --suite build --mode mock => MOCK_PASS",
