@@ -1,0 +1,84 @@
+{
+  "schema": "steauditsphereops/production-versions@1",
+  "version": "v15.99.0",
+  "support_basis": {
+    "documentation": "https://docs.frappe.io/framework/user/en/installation",
+    "framework_source": "https://github.com/frappe/frappe/tree/v15.99.0",
+    "erpnext_source": "https://github.com/frappe/erpnext/tree/v15.99.0",
+    "verified_at": "2026-09-17"
+  },
+  "repositories": [
+    {
+      "name": "frappe",
+      "url": "https://github.com/frappe/frappe.git",
+      "ref": "v15.99.0",
+      "commit": "5cca1fa7e38cfab74c78627c93a9210dc3fdbccc"
+    },
+    {
+      "name": "erpnext",
+      "url": "https://github.com/frappe/erpnext.git",
+      "ref": "v15.99.0",
+      "commit": "7ad770a83ad7947d97281f96fb8a47f71dca17df"
+    },
+    {
+      "name": "bench",
+      "url": "https://github.com/frappe/bench.git",
+      "ref": "v5.24.0",
+      "commit": "fb3e958000c0b6e6ee020f333dbac951db24e505"
+    }
+  ],
+  "runtime": {
+    "python": {"version": "3.12.11", "support": ">=3.10,<3.14"},
+    "node": {"version": "18.20.8", "support": ">=18"},
+    "npm": {"version": "10.8.2"},
+    "yarn": {"version": "1.22.22", "support": ">=1.12"},
+    "pip": {"version": "25.3", "support": ">=20"},
+    "bench": {"version": "5.24.0"},
+    "mariadb": {"version": "10.6.18", "support": ">=10.6.6"},
+    "redis": {"version": "6.2.16", "support": ">=6"},
+    "wkhtmltopdf": {"version": "0.12.6-2", "support": "patched-qt"}
+  },
+  "images": [
+    {
+      "name": "frappe/erpnext",
+      "tag": "v15.99.0",
+      "reference": "frappe/erpnext:v15.99.0@sha256:c7c653a066f5a72a7aff8d913013008c7f360e7571002d839e0fcf69651304e7",
+      "digest": "sha256:c7c653a066f5a72a7aff8d913013008c7f360e7571002d839e0fcf69651304e7",
+      "source": "https://hub.docker.com/r/frappe/erpnext/tags?name=v15.99.0"
+    },
+    {
+      "name": "python",
+      "tag": "3.12.11",
+      "reference": "python:3.12.11@sha256:c1a5d356638cc86bd865d9019efbc34a6b0c3ad15a21e5ab4eb57bd2d1c3f7ce",
+      "digest": "sha256:c1a5d356638cc86bd865d9019efbc34a6b0c3ad15a21e5ab4eb57bd2d1c3f7ce",
+      "source": "https://hub.docker.com/_/python/tags?name=3.12.11"
+    },
+    {
+      "name": "node",
+      "tag": "18.20.8",
+      "reference": "node:18.20.8@sha256:c6ae79e38498325db67193d391e6ec1d224d96c693a8a4d943498556716d3783",
+      "digest": "sha256:c6ae79e38498325db67193d391e6ec1d224d96c693a8a4d943498556716d3783",
+      "source": "https://hub.docker.com/_/node/tags?name=18.20.8"
+    },
+    {
+      "name": "mariadb",
+      "tag": "10.6.18",
+      "reference": "mariadb:10.6.18@sha256:f7cc395e35257dfb332ad73a80c36e74a6990c209519760c7b9bba6b2ab47a86",
+      "digest": "sha256:f7cc395e35257dfb332ad73a80c36e74a6990c209519760c7b9bba6b2ab47a86",
+      "source": "https://hub.docker.com/_/mariadb/tags?name=10.6.18"
+    },
+    {
+      "name": "redis",
+      "tag": "6.2.16",
+      "reference": "redis:6.2.16@sha256:d74db717c8b8a7be8e3cc949b4ad7cf4b87276ff2a47bb487ef0f5f05430c0f9",
+      "digest": "sha256:d74db717c8b8a7be8e3cc949b4ad7cf4b87276ff2a47bb487ef0f5f05430c0f9",
+      "source": "https://hub.docker.com/_/redis/tags?name=6.2.16"
+    }
+  ],
+  "policy": {
+    "floating_refs_forbidden": true,
+    "image_digests_required": true,
+    "dependency_installation": "Use the pinned refs and review compatibility before changing any value; no latest, develop, branch, or range is valid.",
+    "runtime_mismatch": "A mismatch blocks P0 feasibility; it is not silently repaired by upgrading a pin."
+  }
+}
