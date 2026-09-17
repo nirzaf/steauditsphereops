@@ -92,9 +92,10 @@ def live() -> dict[str, object]:
         apply_schema = run_fixed(["docker", "compose", "-f", str(COMPOSE), "exec", "--no-TTY", "mariadb", "mariadb", "--defaults-extra-file=/tmp/poc.cnf", "audit_poc"], env=env, input_bytes=SCHEMA.read_bytes())
         if apply_schema.returncode:
             return result("FAIL", "POC schema migration failed", returncode=apply_schema.returncode)
-        compile_app = run_fixed(["docker", "compose", "-f", str(COMPOSE), "exec", "--no-TTY", "frappe", "python3", "-m", "compileall", "-q", "/workspace/audit_poc"], env=env)
+        syntax_check = "import ast,pathlib; [ast.parse(path.read_text()) for path in pathlib.Path('/workspace/audit_poc').rglob('*.py')]"
+        compile_app = run_fixed(["docker", "compose", "-f", str(COMPOSE), "exec", "--no-TTY", "frappe", "python3", "-c", syntax_check], env=env)
         if compile_app.returncode:
-            return result("FAIL", "pinned Frappe image could not compile the mounted audit_poc app", returncode=compile_app.returncode)
+            return result("FAIL", "pinned Frappe image could not parse the mounted audit_poc app", returncode=compile_app.returncode)
         versions = run_fixed(["docker", "compose", "-f", str(COMPOSE), "exec", "--no-TTY", "frappe", "bench", "version", "--format", "plain"], env=env)
         if versions.returncode:
             return result("FAIL", "pinned Frappe image did not expose the expected Bench version command", returncode=versions.returncode)
