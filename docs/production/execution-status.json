@@ -54,7 +54,7 @@
       "milestone": "R0 \u2014 Feasibility",
       "risk": "risk:high",
       "state": "IN_PROGRESS",
-      "commit": null,
+      "commit": "667ac7d065486537751665df5d4a01b67bdae790",
       "tests": [
         "python3 scripts/wbs/check_versions.py infra/production/versions.json => pass",
         "python3 scripts/wbs/check_versions.py infra/production/versions.json --negative-fixture => pass; floating ref rejected",
