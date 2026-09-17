@@ -2,8 +2,8 @@
   "schema": "steauditsphereops/execution-status@1",
   "repo": "nirzaf/steauditsphereops",
   "base": "main",
-  "updated": "2026-09-17T07:05:00Z",
-  "note": "Tasks 01 through 04 are ACCEPTED on protected main. WBS-04 build feasibility passed twice from clean disposable pinned resources; the runner still preserves explicit BLOCKED behavior when the POC environment is absent, and later P0 experiments remain owned by their numbered tasks.",
+  "updated": "2026-09-17T07:35:00Z",
+  "note": "Tasks 01 through 04 are ACCEPTED on protected main. Task 05 is IN_PROGRESS with fail-closed mock identity/snapshot tests and an explicit external-tenant capability matrix; no provider observation is claimed.",
   "tasks": [
     {
       "task_id": "01",
@@ -110,14 +110,23 @@
       "wbs": "docs/05-poc-identity-and-document-capabilities.md",
       "issue": 5,
       "issue_url": "https://github.com/nirzaf/steauditsphereops/issues/5",
-      "github_label": "agent:planning",
+      "github_label": "agent:implementing",
       "milestone": "R0 \u2014 Feasibility",
       "risk": "risk:high",
-      "state": "NOT_STARTED",
-      "commit": null,
-      "tests": [],
-      "evidence_path": null,
-      "blocker": "awaiting ACCEPTED: predecessor #4 (docs/04-poc-harness-and-schema.md) per AGENTS.md S3"
+      "state": "IN_PROGRESS",
+      "commit": "6f90a3c460a80487865b14f3474d09dd6ba0ce49",
+      "tests": [
+        "python3 -m unittest spikes/p0/test_identity.py spikes/p0/test_documents.py spikes/p0/test_records.py spikes/p0/test_build.py => pass (10 tests)",
+        "python3 scripts/p0/run.py --suite identity --mode mock => MOCK_PASS",
+        "python3 scripts/p0/run.py --suite documents --mode mock => MOCK_PASS",
+        "python3 scripts/p0/run.py --suite identity --mode live => BLOCKED/exit 2; no future service called",
+        "python3 scripts/p0/run.py --suite documents --mode live => BLOCKED/exit 2; no future service called",
+        "python3 -m py_compile P0 identity/document/records tests and permissions => pass",
+        "python3 -m json.tool docs/production/microsoft-capabilities.json => pass",
+        "git diff --check => pass"
+      ],
+      "evidence_path": "docs/production/microsoft-capabilities.json",
+      "blocker": "Security/tenant administrator must provide pre-authorized non-production identities, test sites, Selected grants and an approved records profile; mock-only results cannot satisfy P0-02 through P0-05 or P0-09."
     },
     {
       "task_id": "06",
