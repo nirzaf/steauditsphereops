@@ -2,8 +2,8 @@
   "schema": "steauditsphereops/execution-status@1",
   "repo": "nirzaf/steauditsphereops",
   "base": "main",
-  "updated": "2026-09-16T20:34:00Z",
-  "note": "Task 01 adopts the owner-ordered bootstrap ledger. Task 01 is BLOCKED by the missing source-custodian baseline disposition; later tasks remain NOT_STARTED. Agents propose state changes, ACCEPTED requires verified evidence plus required human decisions.",
+  "updated": "2026-09-17T00:00:00Z",
+  "note": "Task 01 records the user-directed repository/source disposition and an explicit Cubic-quota review waiver. Task 01 remains IN_PROGRESS until current-head Codex/security evidence, authorized integration, and protected-main merge are complete; later tasks remain NOT_STARTED.",
   "tasks": [
     {
       "task_id": "01",
@@ -13,11 +13,11 @@
       "github_label": "agent:ready",
       "milestone": "R0 \u2014 Feasibility",
       "risk": "risk:low",
-      "state": "BLOCKED",
-      "commit": "7bf2578f158895fd26e2d5fcd912351ecc4e9145",
-      "tests": ["git cat-file -e 7bf2578f158895fd26e2d5fcd912351ecc4e9145^{commit} => commit in agent/1-execution-baseline checkout", "git merge-base --is-ancestor d5830ab97cf05dc8a1608615957301bb96f20475 refs/heads/main => pass; side-branch commit rejected", "python3 scripts/wbs/validate_baseline.py --root . => exit 1: owner-approved baseline disposition is required", "python3 -m py_compile scripts/wbs/validate_baseline.py => pass", "validator edge checks for predecessor state, typed ledger fields, full commit identity, URL authority, repository-contained evidence, and symlinked control files => pass", "git diff --check => pass"],
+      "state": "IN_PROGRESS",
+      "commit": "f2eafa371ed62737cde967dc5d128e825745e97d",
+      "tests": ["git cat-file -e f2eafa371ed62737cde967dc5d128e825745e97d^{commit} => pass in agent/1-source-disposition checkout", "git merge-base --is-ancestor 446aa294a75ac19d85ec608bceb91fe3bcfcbdd6 refs/heads/main => pass for protected base", "python3 scripts/wbs/validate_baseline.py --root . => pass after recorded repository/source disposition", "python3 -m py_compile scripts/wbs/validate_baseline.py => pass", "python3 -m json.tool docs/production/execution-status.json => pass", "validator edge checks for predecessor state, typed ledger fields, full commit identity, URL authority, repository-contained evidence, and symlinked control files => pass", "git diff --check => pass", "Cubic current-head review => explicitly waived by user instruction after quota-neutral result; not represented as approval", "current-head Codex/GitGuardian checks => pending after this repair commit"],
       "evidence_path": "docs/production/source-baseline.md",
-      "blocker": "Owner-approved mapping and controlled v5 source disposition are missing."
+      "blocker": "Awaiting current-head Codex/GitGuardian evidence and this repair PR's protected-main integration; Cubic review is explicitly waived for this run because the provider quota is exhausted."
     },
     {
       "task_id": "02",
