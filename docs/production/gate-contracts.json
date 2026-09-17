@@ -1,0 +1,118 @@
+{
+  "schema": "steauditsphereops/gate-contracts@1",
+  "version": "v5",
+  "gate_order": ["G0", "G1", "G2", "G3", "G4", "G5", "G6", "G7", "G8", "G9", "G10"],
+  "rule": "Gate status is derived from authoritative records and profile applicability; the UI cannot set a gate directly.",
+  "gates": [
+    {
+      "id": "G0",
+      "title": "Firm ready",
+      "applicable_profiles": ["ACCOUNTING_ONLY", "EXTERNAL_AUDIT_ONLY", "COMBINED", "INTERNAL_AUDIT"],
+      "prerequisites": {"ACCOUNTING_ONLY": [], "EXTERNAL_AUDIT_ONLY": [], "COMBINED": [], "INTERNAL_AUDIT": []},
+      "owner_roles": ["SPONSOR", "TECHNICAL_OWNER", "PROFESSIONAL_OWNER", "SECURITY_OWNER", "RECORDS_OWNER"],
+      "authoritative_inputs": ["approved_service_profile", "approved_roles", "approved_templates", "approved_methodology", "safe_integration_dispositions", "records_control_disposition"],
+      "blocker_codes": ["FIRM_CONFIGURATION_MISSING", "SERVICE_PROFILE_UNAPPROVED", "RECORDS_CONTROL_UNCONFIRMED"],
+      "invalidation_triggers": ["service_profile_revision", "role_or_assignment_policy_change", "template_or_methodology_revision", "integration_capability_revoked"]
+    },
+    {
+      "id": "G1",
+      "title": "Accept / continue",
+      "applicable_profiles": ["ACCOUNTING_ONLY", "EXTERNAL_AUDIT_ONLY", "COMBINED", "INTERNAL_AUDIT"],
+      "prerequisites": {"ACCOUNTING_ONLY": ["G0"], "EXTERNAL_AUDIT_ONLY": ["G0"], "COMBINED": ["G0"], "INTERNAL_AUDIT": ["G0"]},
+      "owner_roles": ["ENGAGEMENT_PARTNER"],
+      "authoritative_inputs": ["current_questionnaire_revision", "identity_and_ownership_evidence", "independence_and_integrity_clearances", "specialist_dispositions", "partner_decision"],
+      "blocker_codes": ["ACCEPTANCE_INCOMPLETE", "IDENTITY_HOLD", "INDEPENDENCE_HOLD", "PROHIBITION_CONFIRMED", "PARTNER_DECISION_MISSING"],
+      "invalidation_triggers": ["questionnaire_revision", "material_client_fact_change", "clearance_expiry", "prohibition_or_scope_change"]
+    },
+    {
+      "id": "G2",
+      "title": "Commercial ready",
+      "applicable_profiles": ["ACCOUNTING_ONLY", "EXTERNAL_AUDIT_ONLY", "COMBINED", "INTERNAL_AUDIT"],
+      "prerequisites": {"ACCOUNTING_ONLY": ["G1"], "EXTERNAL_AUDIT_ONLY": ["G1"], "COMBINED": ["G1"], "INTERNAL_AUDIT": ["G1"]},
+      "owner_roles": ["FINANCE_OWNER", "COMMERCIAL_APPROVER", "ENGAGEMENT_PARTNER"],
+      "authoritative_inputs": ["staff_level_estimate_revision", "scope_assumptions", "fee_approvals", "accepted_quotation"],
+      "blocker_codes": ["ESTIMATE_MISSING", "FEE_APPROVAL_MISSING", "QUOTATION_NOT_ACCEPTED", "SCOPE_ASSUMPTION_CHANGED"],
+      "invalidation_triggers": ["estimate_revision", "scope_change", "fee_or_discount_change", "quotation_superseded"]
+    },
+    {
+      "id": "G3",
+      "title": "Terms accepted",
+      "applicable_profiles": ["ACCOUNTING_ONLY", "EXTERNAL_AUDIT_ONLY", "COMBINED", "INTERNAL_AUDIT"],
+      "prerequisites": {"ACCOUNTING_ONLY": ["G2"], "EXTERNAL_AUDIT_ONLY": ["G2"], "COMBINED": ["G2"], "INTERNAL_AUDIT": ["G2"]},
+      "owner_roles": ["ENGAGEMENT_OWNER", "CLIENT_APPROVER"],
+      "authoritative_inputs": ["exact_engagement_letter_snapshot", "named_client_signatory", "acceptance_evidence", "delivery_observation"],
+      "blocker_codes": ["TERMS_NOT_FINAL", "SIGNATORY_UNVERIFIED", "TERMS_NOT_ACCEPTED", "DELIVERY_UNCERTAIN"],
+      "invalidation_triggers": ["quotation_revision", "engagement_letter_revision", "signatory_change", "scope_or_period_change"]
+    },
+    {
+      "id": "G4",
+      "title": "Portal eligible",
+      "applicable_profiles": ["ACCOUNTING_ONLY", "EXTERNAL_AUDIT_ONLY", "COMBINED", "INTERNAL_AUDIT"],
+      "prerequisites": {"ACCOUNTING_ONLY": ["G3"], "EXTERNAL_AUDIT_ONLY": ["G3"], "COMBINED": ["G3"], "INTERNAL_AUDIT": ["G3"]},
+      "owner_roles": ["FINANCE_OWNER", "ACCESS_CONTROLLER"],
+      "authoritative_inputs": ["accepted_relationship", "verified_advance_and_allocation", "named_verified_identity", "restricted_binding_record"],
+      "blocker_codes": ["ADVANCE_UNVERIFIED", "ADVANCE_REVERSED", "IDENTITY_NOT_BOUND", "PORTAL_BINDING_MISSING"],
+      "invalidation_triggers": ["advance_reversal", "identity_disable_or_rebind", "terms_revision", "engagement_scope_change"]
+    },
+    {
+      "id": "G5",
+      "title": "Fieldwork ready",
+      "applicable_profiles": ["EXTERNAL_AUDIT_ONLY", "COMBINED", "INTERNAL_AUDIT"],
+      "prerequisites": {"EXTERNAL_AUDIT_ONLY": ["G4"], "COMBINED": ["G4"], "INTERNAL_AUDIT": ["G4"]},
+      "owner_roles": ["AUDIT_SENIOR", "AUDIT_MANAGER", "ENGAGEMENT_PARTNER"],
+      "authoritative_inputs": ["approved_plan", "approved_announcement", "assigned_team", "critical_request_readiness", "blocking_hold_evaluation"],
+      "blocker_codes": ["PLAN_NOT_APPROVED", "TEAM_UNASSIGNED", "CRITICAL_REQUEST_MISSING", "FIELDWORK_HOLD"],
+      "invalidation_triggers": ["plan_revision", "team_assignment_change", "critical_evidence_change", "new_blocking_hold"]
+    },
+    {
+      "id": "G6",
+      "title": "Review submission ready",
+      "applicable_profiles": ["EXTERNAL_AUDIT_ONLY", "COMBINED", "INTERNAL_AUDIT"],
+      "prerequisites": {"EXTERNAL_AUDIT_ONLY": ["G5"], "COMBINED": ["G5"], "INTERNAL_AUDIT": ["G5"]},
+      "owner_roles": ["AUDIT_SENIOR", "NEXT_LEVEL_REVIEWER"],
+      "authoritative_inputs": ["submitted_programmes", "submitted_workpapers", "frozen_conclusion_summary", "visible_blockers"],
+      "blocker_codes": ["SUBMISSION_INCOMPLETE", "SUMMARY_NOT_FROZEN", "REVIEW_PACKAGE_MISMATCH", "OPEN_MATERIAL_BLOCKER"],
+      "invalidation_triggers": ["workpaper_revision", "programme_revision", "summary_dependency_change", "new_review_blocker"]
+    },
+    {
+      "id": "G7",
+      "title": "Completion ready",
+      "applicable_profiles": ["EXTERNAL_AUDIT_ONLY", "COMBINED", "INTERNAL_AUDIT"],
+      "prerequisites": {"EXTERNAL_AUDIT_ONLY": ["G6"], "COMBINED": ["G6"], "INTERNAL_AUDIT": ["G6"]},
+      "owner_roles": ["AUDIT_MANAGER", "ENGAGEMENT_PARTNER", "EQR"],
+      "authoritative_inputs": ["current_draft_response", "information_request_evaluation", "representations", "cleared_review_points", "required_eqr_result"],
+      "blocker_codes": ["REVIEW_POINT_OPEN", "REPRESENTATION_MISSING", "EQR_REQUIRED", "EQR_INCOMPLETE", "DRAFT_RESPONSE_STALE"],
+      "invalidation_triggers": ["draft_or_response_revision", "review_point_reopened", "representation_change", "eqr_scope_or_result_change"]
+    },
+    {
+      "id": "G8",
+      "title": "Release ready",
+      "applicable_profiles": ["ACCOUNTING_ONLY", "EXTERNAL_AUDIT_ONLY", "COMBINED", "INTERNAL_AUDIT"],
+      "prerequisites": {"ACCOUNTING_ONLY": ["G4"], "EXTERNAL_AUDIT_ONLY": ["G7"], "COMBINED": ["G7"], "INTERNAL_AUDIT": ["G7"]},
+      "owner_roles": ["AUTHORIZED_REPORT_SIGNATORY", "ACCOUNTING_APPROVER"],
+      "authoritative_inputs": ["exact_final_artifact_pair_or_profile_output", "applicable_approval_decisions", "signature_lineage", "observed_protection", "current_input_generations"],
+      "blocker_codes": ["FINAL_ARTIFACT_MISMATCH", "SIGNATURE_MISSING", "PROTECTION_UNOBSERVED", "STALE_GENERATION", "OPINION_NOT_AUTHORIZED"],
+      "invalidation_triggers": ["source_or_journal_change", "approval_revision", "signature_or_manifest_change", "protection_observation_expiry"]
+    },
+    {
+      "id": "G9",
+      "title": "Commercial close",
+      "applicable_profiles": ["ACCOUNTING_ONLY", "EXTERNAL_AUDIT_ONLY", "COMBINED", "INTERNAL_AUDIT"],
+      "prerequisites": {"ACCOUNTING_ONLY": ["G8"], "EXTERNAL_AUDIT_ONLY": ["G8"], "COMBINED": ["G8"], "INTERNAL_AUDIT": ["G8"]},
+      "owner_roles": ["FINANCE_OWNER"],
+      "authoritative_inputs": ["final_invoice", "single_advance_allocation", "approved_time_and_cost_snapshot", "commercial_exceptions"],
+      "blocker_codes": ["INVOICE_MISSING", "ADVANCE_DOUBLE_ALLOCATION", "TIME_COST_NOT_APPROVED", "COMMERCIAL_EXCEPTION_OPEN"],
+      "invalidation_triggers": ["issued_scope_change", "invoice_revision", "time_or_cost_revision", "exception_reopened"]
+    },
+    {
+      "id": "G10",
+      "title": "Archive / renewal",
+      "applicable_profiles": ["ACCOUNTING_ONLY", "EXTERNAL_AUDIT_ONLY", "COMBINED", "INTERNAL_AUDIT"],
+      "prerequisites": {"ACCOUNTING_ONLY": ["G9"], "EXTERNAL_AUDIT_ONLY": ["G9"], "COMBINED": ["G9"], "INTERNAL_AUDIT": ["G9"]},
+      "owner_roles": ["RECORDS_OWNER", "NEXT_PERIOD_PARTNER"],
+      "authoritative_inputs": ["complete_archive_manifest", "observed_records_controls", "recovery_evidence", "fresh_next_period_decision"],
+      "blocker_codes": ["ARCHIVE_INCOMPLETE", "PROTECTION_UNOBSERVED", "RECOVERY_EVIDENCE_MISSING", "RENEWAL_DECISION_MISSING"],
+      "invalidation_triggers": ["archive_manifest_revision", "records_control_change", "recovery_epoch_change", "next_period_scope_change"]
+    }
+  ]
+}

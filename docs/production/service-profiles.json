@@ -1,0 +1,71 @@
+{
+  "schema": "steauditsphereops/service-profiles@1",
+  "version": "v5",
+  "scope_rule": "Every profile is scoped by firm, client, service, engagement, and reporting period.",
+  "profiles": [
+    {
+      "id": "ACCOUNTING_ONLY",
+      "enabled": true,
+      "capabilities": {
+        "accounting": true,
+        "external_audit": false,
+        "internal_audit": false,
+        "auditor_opinion": false,
+        "financial_statements": true
+      },
+      "required_gates": ["G0", "G1", "G2", "G3", "G4", "G8", "G9", "G10"],
+      "audit_only_gates": [],
+      "forbidden_approvals": ["AUDITOR_OPINION", "EQR_FOR_STATUTORY_AUDIT"],
+      "required_outputs": ["DOC-01", "DOC-02", "DOC-03", "DOC-04", "DOC-05", "DOC-06", "DOC-07", "DOC-08", "DOC-13", "DOC-17", "DOC-18", "DOC-19", "DOC-23", "DOC-24", "DOC-25", "DOC-26"],
+      "notes": "Accounting-only work may release an approved financial-statement package, but it never requires or creates an auditor opinion or audit-only approval."
+    },
+    {
+      "id": "EXTERNAL_AUDIT_ONLY",
+      "enabled": true,
+      "capabilities": {
+        "accounting": false,
+        "external_audit": true,
+        "internal_audit": false,
+        "auditor_opinion": true,
+        "financial_statements": true
+      },
+      "required_gates": ["G0", "G1", "G2", "G3", "G4", "G5", "G6", "G7", "G8", "G9", "G10"],
+      "audit_only_gates": ["G5", "G6", "G7"],
+      "forbidden_approvals": ["CLIENT_APPROVES_AUDITOR_OPINION"],
+      "required_outputs": ["DOC-01", "DOC-02", "DOC-03", "DOC-04", "DOC-05", "DOC-06", "DOC-07", "DOC-08", "DOC-09", "DOC-10", "DOC-11", "DOC-12", "DOC-13", "DOC-14", "DOC-15", "DOC-16", "DOC-17", "DOC-18", "DOC-19", "DOC-20", "DOC-21", "DOC-22", "DOC-23", "DOC-24", "DOC-25", "DOC-26"],
+      "notes": "The audit team consumes management-supplied accounting evidence; the firm does not silently become the client's bookkeeping system."
+    },
+    {
+      "id": "COMBINED",
+      "enabled": true,
+      "capabilities": {
+        "accounting": true,
+        "external_audit": true,
+        "internal_audit": false,
+        "auditor_opinion": true,
+        "financial_statements": true
+      },
+      "required_gates": ["G0", "G1", "G2", "G3", "G4", "G5", "G6", "G7", "G8", "G9", "G10"],
+      "audit_only_gates": ["G5", "G6", "G7"],
+      "forbidden_approvals": ["CLIENT_APPROVES_AUDITOR_OPINION", "MERGED_LEDGER_SHORTCUT"],
+      "required_outputs": ["DOC-01", "DOC-02", "DOC-03", "DOC-04", "DOC-05", "DOC-06", "DOC-07", "DOC-08", "DOC-09", "DOC-10", "DOC-11", "DOC-12", "DOC-13", "DOC-14", "DOC-15", "DOC-16", "DOC-17", "DOC-18", "DOC-19", "DOC-20", "DOC-21", "DOC-22", "DOC-23", "DOC-24", "DOC-25", "DOC-26"],
+      "notes": "Accounting and audit engagements remain linked by an explicit client-period dependency group; they do not share a merged ledger or bypass separation of duties."
+    },
+    {
+      "id": "INTERNAL_AUDIT",
+      "enabled": true,
+      "capabilities": {
+        "accounting": false,
+        "external_audit": false,
+        "internal_audit": true,
+        "auditor_opinion": false,
+        "financial_statements": false
+      },
+      "required_gates": ["G0", "G1", "G2", "G3", "G4", "G5", "G6", "G7", "G8", "G9", "G10"],
+      "audit_only_gates": ["G5", "G6", "G7"],
+      "forbidden_approvals": ["AUDITOR_OPINION", "STATUTORY_AUDIT_RELEASE"],
+      "required_outputs": ["DOC-01", "DOC-02", "DOC-03", "DOC-04", "DOC-05", "DOC-06", "DOC-07", "DOC-08", "DOC-09", "DOC-10", "DOC-11", "DOC-12", "DOC-15", "DOC-16", "DOC-20", "DOC-22", "DOC-24", "DOC-25", "DOC-26"],
+      "notes": "Internal-audit work may use planning, execution, review, and guarded release controls, but it does not emit statutory financial statements or an external auditor opinion."
+    }
+  ]
+}

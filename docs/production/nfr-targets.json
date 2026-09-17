@@ -1,0 +1,20 @@
+{
+  "schema": "steauditsphereops/nfr-targets@1",
+  "version": "v5",
+  "policy": "A null target is an explicit unresolved owner decision, not a default, estimate, or passing result. Any dependent live proof remains blocked.",
+  "targets": [
+    {"id":"NFR-SCALE-CLIENTS","category":"capacity","metric":"expected_clients","value":null,"unit":"clients","status":"BLOCKED_PENDING_OWNER","owner_role":"SPONSOR","evidence":"docs/production/decision-register.md","blocks":["P0-12","R0_CAPACITY_EXIT"]},
+    {"id":"NFR-SCALE-ENGAGEMENTS","category":"capacity","metric":"expected_active_engagements","value":null,"unit":"engagements","status":"BLOCKED_PENDING_OWNER","owner_role":"SPONSOR","evidence":"docs/production/decision-register.md","blocks":["P0-12","R0_CAPACITY_EXIT"]},
+    {"id":"NFR-SCALE-USERS","category":"capacity","metric":"expected_active_users","value":null,"unit":"users","status":"BLOCKED_PENDING_OWNER","owner_role":"SPONSOR","evidence":"docs/production/decision-register.md","blocks":["P0-12","R0_CAPACITY_EXIT"]},
+    {"id":"NFR-SCALE-CONCURRENCY","category":"performance","metric":"peak_concurrency","value":null,"unit":"sessions","status":"BLOCKED_PENDING_OWNER","owner_role":"SPONSOR","evidence":"docs/production/decision-register.md","blocks":["P0-12","R0_CAPACITY_EXIT"]},
+    {"id":"NFR-LATENCY-COMMAND","category":"performance","metric":"p95_command_latency","value":null,"unit":"milliseconds","status":"BLOCKED_PENDING_OWNER","owner_role":"TECHNICAL_OWNER","evidence":"docs/production/decision-register.md","blocks":["P0-01","P0-12","R0_CAPACITY_EXIT"]},
+    {"id":"NFR-FRESHNESS-PROJECTION","category":"performance","metric":"workspace_progress_freshness","value":null,"unit":"seconds","status":"BLOCKED_PENDING_OWNER","owner_role":"TECHNICAL_OWNER","evidence":"docs/production/decision-register.md","blocks":["P0-12","R0_CAPACITY_EXIT"]},
+    {"id":"NFR-LIMIT-TB-ROWS","category":"data_limits","metric":"trial_balance_row_limit","value":null,"unit":"rows","status":"BLOCKED_PENDING_OWNER","owner_role":"TECHNICAL_OWNER","evidence":"docs/production/decision-register.md","blocks":["P0-07","P0-12"]},
+    {"id":"NFR-LIMIT-FILE","category":"data_limits","metric":"maximum_input_file_size","value":null,"unit":"MiB","status":"BLOCKED_PENDING_OWNER","owner_role":"SECURITY_OWNER","evidence":"docs/production/decision-register.md","blocks":["P0-04","P0-12"]},
+    {"id":"NFR-AVAILABILITY","category":"availability","metric":"service_availability","value":null,"unit":"percent","status":"BLOCKED_PENDING_OWNER","owner_role":"SPONSOR","evidence":"docs/production/decision-register.md","blocks":["P0-12","R0_CAPACITY_EXIT"]},
+    {"id":"NFR-RETENTION","category":"records","metric":"retention_period","value":null,"unit":"owner-defined policy","status":"BLOCKED_PENDING_OWNER","owner_role":"RECORDS_OWNER","evidence":"docs/production/decision-register.md","blocks":["P0-09","P0-11","R0_CAPACITY_EXIT"]},
+    {"id":"NFR-RPO","category":"recovery","metric":"recovery_point_objective","value":null,"unit":"time","status":"BLOCKED_PENDING_OWNER","owner_role":"SECURITY_OWNER","evidence":"docs/production/decision-register.md","blocks":["P0-11","R0_CAPACITY_EXIT"]},
+    {"id":"NFR-RTO","category":"recovery","metric":"recovery_time_objective","value":null,"unit":"time","status":"BLOCKED_PENDING_OWNER","owner_role":"SECURITY_OWNER","evidence":"docs/production/decision-register.md","blocks":["P0-11","R0_CAPACITY_EXIT"]},
+    {"id":"NFR-BUDGET","category":"economics","metric":"approved_operating_budget","value":null,"unit":"owner-defined currency","status":"BLOCKED_PENDING_OWNER","owner_role":"SPONSOR","evidence":"docs/production/decision-register.md","blocks":["P0-12","R0_CAPACITY_EXIT"]}
+  ]
+}
