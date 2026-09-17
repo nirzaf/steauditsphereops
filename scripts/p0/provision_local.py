@@ -41,7 +41,9 @@ def safety() -> tuple[dict[str, str] | None, dict[str, object] | None]:
         return None, result("BLOCKED", "POC_DB_PASSWORD is required for live disposable provisioning")
     if shutil.which("docker") is None:
         return None, result("BLOCKED", "docker is not installed")
-    return required, None
+    runtime_env = os.environ.copy()
+    runtime_env.update(required)
+    return runtime_env, None
 
 
 def run_fixed(args: list[str], *, env: dict[str, str], input_bytes: bytes | None = None) -> subprocess.CompletedProcess[bytes]:
