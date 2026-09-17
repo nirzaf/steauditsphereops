@@ -1,0 +1,24 @@
+{
+  "schema": "steauditsphereops/p0-index@1",
+  "source": {
+    "repository": "https://github.com/nirzaf/steauditqts",
+    "commit": "2898e44f6732c8b37c31ddfbeab0e322d7574ffe",
+    "path": "src/domain/traceability.js",
+    "kind": "read-only planning source"
+  },
+  "rule": "P0-12 is a human-evidence gate; mock results never become LIVE_PASS.",
+  "experiments": [
+    {"id":"P0-01","title":"Build","task":"04","suite":"build","test":"build_reproducible","expected":"Reproducible pinned app/runtime build evidence"},
+    {"id":"P0-02","title":"Identity","task":"05","suite":"identity","test":"identity_mapping","expected":"Stable mapping and visible revocation; no silent merge"},
+    {"id":"P0-03","title":"Isolation","task":"05","suite":"isolation","test":"scope_boundary","expected":"No cross-client metadata or file leakage"},
+    {"id":"P0-04","title":"Microsoft capability","task":"05","suite":"microsoft","test":"capability_matrix","expected":"Selected grant operation matrix with denied unrelated target"},
+    {"id":"P0-05","title":"Receipt/snapshot","task":"05","suite":"documents","test":"receipt_snapshot","expected":"Distinct original, stored, approved identities and hashes"},
+    {"id":"P0-06","title":"Local release race","task":"06","suite":"transactions","test":"generation_conflict","expected":"Stale generation and concurrent revision are blocked deterministically"},
+    {"id":"P0-07","title":"Accounting bridge","task":"07","suite":"accounting","test":"journal_bridge","expected":"Expected result and duplicate/partial reflection holds"},
+    {"id":"P0-08","title":"Privileged execution","task":"06","suite":"privileged","test":"typed_target","expected":"Forged target and stale operation are denied"},
+    {"id":"P0-09","title":"Records","task":"05","suite":"documents","test":"records_protection","expected":"Approved protection profile is observed or remains held"},
+    {"id":"P0-10","title":"Retry/revocation","task":"06","suite":"recovery","test":"retry_revocation","expected":"Existing remote artifact reconciles and stale/unauthorized attempts cannot publish"},
+    {"id":"P0-11","title":"Release/recovery","task":"06","suite":"recovery","test":"release_restore","expected":"External effects quarantined and one release identity reconstructed"},
+    {"id":"P0-12","title":"Scope/economics","task":"07","suite":"human","test":"scope_economics","expected":"Professional lead records signed feasibility and revised backlog decision"}
+  ]
+}

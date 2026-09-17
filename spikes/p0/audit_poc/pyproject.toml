@@ -1,0 +1,6 @@
+[project]
+name = "audit-poc"
+version = "0.1.0"
+description = "Disposable STE AuditSphere P0 feasibility app; not production code."
+requires-python = ">=3.10,<3.14"
+dependencies = []

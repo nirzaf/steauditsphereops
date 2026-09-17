@@ -2,8 +2,8 @@
   "schema": "steauditsphereops/execution-status@1",
   "repo": "nirzaf/steauditsphereops",
   "base": "main",
-  "updated": "2026-09-17T05:45:00Z",
-  "note": "Tasks 01, 02 and 03 are ACCEPTED on protected main. Task 03 records exact v15.99.0 toolchain pins; no live Bench/runtime proof is claimed because Bench is not installed on the implementation host.",
+  "updated": "2026-09-17T06:10:00Z",
+  "note": "Tasks 01, 02 and 03 are ACCEPTED on protected main. Task 04 is IN_PROGRESS with a disposable POC substrate, explicit twelve-ID index, and fail-closed mock/live runner; live proof remains visibly blocked without the allowlisted POC environment.",
   "tasks": [
     {
       "task_id": "01",
@@ -77,14 +77,23 @@
       "wbs": "docs/04-poc-harness-and-schema.md",
       "issue": 4,
       "issue_url": "https://github.com/nirzaf/steauditsphereops/issues/4",
-      "github_label": "agent:planning",
+      "github_label": "agent:implementing",
       "milestone": "R0 \u2014 Feasibility",
       "risk": "risk:high",
-      "state": "NOT_STARTED",
-      "commit": null,
-      "tests": [],
-      "evidence_path": null,
-      "blocker": "awaiting ACCEPTED: predecessor #3 (docs/03-toolchain-and-version-contract.md) per AGENTS.md S3"
+      "state": "IN_PROGRESS",
+      "commit": "8a2acce26c0281559154bdf8cb613c4e73549d62",
+      "tests": [
+        "python3 scripts/p0/provision_local.py --validate-only => pass",
+        "python3 scripts/p0/run.py --suite build --mode mock => MOCK_PASS",
+        "python3 scripts/p0/run.py --suite build --mode live => BLOCKED/nonzero because AUDIT_POC_ENV is not POC",
+        "python3 scripts/p0/run.py --suite identity --mode mock => MOCK_PASS",
+        "python3 -m unittest spikes/p0/test_build.py => pass (3 tests)",
+        "python3 -m py_compile P0 scripts and spike DocType => pass",
+        "python3 -m json.tool docs/production/p0-index.json => pass",
+        "git diff --check => pass"
+      ],
+      "evidence_path": "docs/production/p0-index.json",
+      "blocker": "Live P0-01 requires an explicitly allowlisted disposable POC environment with operator-provided local credentials; no live result is claimed, and MOCK_PASS is not LIVE_PASS."
     },
     {
       "task_id": "05",
