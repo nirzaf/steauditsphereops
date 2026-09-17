@@ -2,8 +2,8 @@
   "schema": "steauditsphereops/execution-status@1",
   "repo": "nirzaf/steauditsphereops",
   "base": "main",
-  "updated": "2026-09-17T06:35:00Z",
-  "note": "Tasks 01, 02 and 03 are ACCEPTED on protected main. Task 04 is BLOCKED after its live build command visibly failed closed without the allowlisted POC environment; mock evidence is not treated as live acceptance.",
+  "updated": "2026-09-17T07:05:00Z",
+  "note": "Tasks 01 through 04 are ACCEPTED on protected main. WBS-04 build feasibility passed twice from clean disposable pinned resources; the runner still preserves explicit BLOCKED behavior when the POC environment is absent, and later P0 experiments remain owned by their numbered tasks.",
   "tasks": [
     {
       "task_id": "01",
@@ -77,11 +77,11 @@
       "wbs": "docs/04-poc-harness-and-schema.md",
       "issue": 4,
       "issue_url": "https://github.com/nirzaf/steauditsphereops/issues/4",
-      "github_label": "agent:blocked",
+      "github_label": "agent:ready",
       "milestone": "R0 \u2014 Feasibility",
       "risk": "risk:high",
-      "state": "BLOCKED",
-      "commit": "8a2acce26c0281559154bdf8cb613c4e73549d62",
+      "state": "ACCEPTED",
+      "commit": "c01aaba23d6f782c55da7e92af0b65321819c4f2",
       "tests": [
         "python3 scripts/p0/provision_local.py --validate-only => pass",
         "python3 scripts/p0/run.py --suite build --mode mock => MOCK_PASS",
@@ -92,12 +92,18 @@
         "python3 -m json.tool docs/production/p0-index.json => pass",
         "git diff --check => pass",
         "python3 scripts/wbs/validate_baseline.py --root . => pass on integrated main",
+        "python3 scripts/p0/run.py --suite build --mode live => LIVE_PASS (attempt 1; clean resources; manifest 51195a1ba00368b7c537488b80562bf68c444ed5b2cc8000d0ef9f27b419df9c)",
+        "python3 scripts/p0/run.py --suite build --mode live => LIVE_PASS (attempt 2; clean resources; same manifest)",
+        "previous no-environment live command => BLOCKED/exit 2; fail-closed behavior retained",
+        "git cat-file -e c01aaba23d6f782c55da7e92af0b65321819c4f2^{commit} => pass",
+        "git merge-base --is-ancestor c01aaba23d6f782c55da7e92af0b65321819c4f2 refs/remotes/origin/main => pass",
         "GitGuardian on PR #82 => success",
-        "Codex current-head review on PR #82 => no findings",
+        "GitGuardian on PR #83/#84/#85 => success",
+        "Codex current-head review on PR #82/#83/#84/#85 => no findings",
         "Cubic current-head review => neutral/quota exhausted; explicitly waived by user instruction and not represented as approval"
       ],
       "evidence_path": "docs/production/p0-index.json",
-      "blocker": "Live P0-01 requires an explicitly allowlisted disposable POC environment with operator-provided local credentials; no live result is claimed, and MOCK_PASS is not LIVE_PASS."
+      "blocker": "P0-02 through P0-12 remain intentionally unexecuted by WBS-04 and are owned by WBS-05/06/07 plus the human-evidence gate; no result for those experiments is claimed here."
     },
     {
       "task_id": "05",
