@@ -2,8 +2,8 @@
   "schema": "steauditsphereops/execution-status@1",
   "repo": "nirzaf/steauditsphereops",
   "base": "main",
-  "updated": "2026-09-17T08:05:00Z",
-  "note": "Tasks 01 through 04 are ACCEPTED on protected main. Task 05 is BLOCKED on the authorized external tenant/grant prerequisite; mock safeguards and the capability boundary are integrated without claiming provider observations.",
+  "updated": "2026-09-18T13:29:22Z",
+  "note": "Tasks 01 through 04 are ACCEPTED on protected main. Task 05 remains BLOCKED: the EasyGuide owner decisions are recorded; P0-04 metadata and the bounded P0-05 app-only file/saved-version probe have live observations. P0-02/P0-03 identity/isolation, the broader P0-05 capability cases, and P0-09 records protection remain incomplete.",
   "tasks": [
     {
       "task_id": "01",
@@ -15,7 +15,19 @@
       "risk": "risk:low",
       "state": "ACCEPTED",
       "commit": "f2eafa371ed62737cde967dc5d128e825745e97d",
-      "tests": ["git cat-file -e f2eafa371ed62737cde967dc5d128e825745e97d^{commit} => pass on protected main", "git merge-base --is-ancestor f2eafa371ed62737cde967dc5d128e825745e97d refs/remotes/origin/main => pass", "git cat-file -e 6a2735f1fa9497c4c80bb7dbaad5de5abf306746^{commit} => pass; WBS-01 repair merge commit", "python3 scripts/wbs/validate_baseline.py --root . => pass on integrated source disposition", "python3 -m py_compile scripts/wbs/validate_baseline.py => pass", "python3 -m json.tool docs/production/execution-status.json => pass", "validator edge checks for predecessor state, typed ledger fields, full commit identity, URL authority, repository-contained evidence, and symlinked control files => pass", "git diff --check => pass", "GitGuardian on PR #76 => success", "Codex current-head review on PR #76 => no findings", "Cubic current-head review => explicitly waived by user instruction after quota-neutral result; not represented as approval"],
+      "tests": [
+        "git cat-file -e f2eafa371ed62737cde967dc5d128e825745e97d^{commit} => pass on protected main",
+        "git merge-base --is-ancestor f2eafa371ed62737cde967dc5d128e825745e97d refs/remotes/origin/main => pass",
+        "git cat-file -e 6a2735f1fa9497c4c80bb7dbaad5de5abf306746^{commit} => pass; WBS-01 repair merge commit",
+        "python3 scripts/wbs/validate_baseline.py --root . => pass on integrated source disposition",
+        "python3 -m py_compile scripts/wbs/validate_baseline.py => pass",
+        "python3 -m json.tool docs/production/execution-status.json => pass",
+        "validator edge checks for predecessor state, typed ledger fields, full commit identity, URL authority, repository-contained evidence, and symlinked control files => pass",
+        "git diff --check => pass",
+        "GitGuardian on PR #76 => success",
+        "Codex current-head review on PR #76 => no findings",
+        "Cubic current-head review => explicitly waived by user instruction after quota-neutral result; not represented as approval"
+      ],
       "evidence_path": "docs/production/source-baseline.md",
       "blocker": null
     },
@@ -114,13 +126,13 @@
       "milestone": "R0 \u2014 Feasibility",
       "risk": "risk:high",
       "state": "BLOCKED",
-      "commit": "993606d237f22cbef78f5ed3c19aa6d64e457d7a",
+      "commit": null,
       "tests": [
         "python3 -m unittest spikes/p0/test_identity.py spikes/p0/test_documents.py spikes/p0/test_records.py spikes/p0/test_build.py => pass (11 tests; fail-closed and disabled-identity regressions)",
         "python3 scripts/p0/run.py --suite identity --mode mock => MOCK_PASS",
         "python3 scripts/p0/run.py --suite documents --mode mock => MOCK_PASS",
         "python3 scripts/p0/run.py --suite identity --mode live => BLOCKED/exit 2; no future service called",
-        "python3 scripts/p0/run.py --suite documents --mode live => BLOCKED/exit 2; no future service called",
+        "Historical pre-executor documents live run => BLOCKED/exit 2; superseded by the bounded live P0-05 probe below, while the overall documents suite still requires P0-09.",
         "python3 -m py_compile P0 identity/document/records tests and permissions => pass",
         "python3 -m json.tool docs/production/microsoft-capabilities.json => pass",
         "git diff --check => pass",
@@ -133,10 +145,22 @@
         "Codex current-head review on PR #89 => no findings",
         "GitGuardian on PR #91 => success",
         "Codex current-head review on PR #91 => no findings",
-        "Cubic current-head review => neutral/quota exhausted; explicitly waived by user instruction and not represented as approval"
+        "Cubic current-head review => neutral/quota exhausted; explicitly waived by user instruction and not represented as approval",
+        "2026-09-18 C:\\Python314\\python.exe -m unittest spikes.p0.test_build spikes.p0.test_identity spikes.p0.test_documents spikes.p0.test_records spikes.p0.test_microsoft_probe spikes.p0.test_document_probe => pass (36 tests)",
+        "2026-09-18 scripts/p0/run.py --suite identity --mode mock => MOCK_PASS; synthetic runner check only",
+        "2026-09-18 scripts/p0/run.py --suite documents --mode mock => MOCK_PASS; synthetic runner check only",
+        "2026-09-18 scripts/p0/run.py --suite identity --mode live => BLOCKED/exit 2; no tenant request; evidence .local/p0-evidence/identity-live-1789738086404926800.json",
+        "2026-09-18 scripts/p0/run.py --suite isolation --mode live => BLOCKED/exit 2; no tenant request; evidence .local/p0-evidence/isolation-live-1789738087623426700.json",
+        "2026-09-18 scripts/p0/run.py --suite microsoft --mode live => LIVE_PASS; Client A metadata HTTP 200 and verified unrelated site HTTP 403; evidence .local/p0-evidence/microsoft-live-1789735940536556300.json",
+        "2026-09-18 scripts/p0/run.py --suite documents --mode live => BLOCKED/exit 2 because P0-09 is incomplete; P0-05 subproof LIVE_PASS for Client B/unrelated denials, synthetic upload/edit/readback, and exact saved-version reconstruction; evidence .local/p0-evidence/documents-live-1789735950375315400.json",
+        "2026-09-18 Purview read-only inspection => File Plan showed zero labels; approved draft canceled before save because a disposition reviewer was not designated; no retention setting changed",
+        "2026-09-18 python scripts/wbs/validate_baseline.py --root . => PASS",
+        "2026-09-18 python scripts/wbs/validate_contracts.py --root . => PASS",
+        "2026-09-18 git diff --check => PASS (line-ending warnings only)",
+        "Live probes ran from the dirty working tree on agent/9-local-skeleton; no tested commit SHA exists for these updated observations, so commit is null."
       ],
       "evidence_path": "docs/production/microsoft-capabilities.json",
-      "blocker": "Security/tenant administrator must provide pre-authorized non-production identities, test sites, Selected grants and an approved records profile; mock-only results cannot satisfy P0-02 through P0-05 or P0-09."
+      "blocker": "WBS-05 remains BLOCKED. P0-02/P0-03 need authorized usable member identity fixtures and live identity/isolation execution for stable tenant/subject mapping, wrong-tenant, revoked/disabled identity, changed/reused email, Frappe denial, and user-level cross-client metadata/search/export. P0-04 has only the bounded app-only metadata observation. P0-05 proves one synthetic upload/edit and exact saved-version readback; unsaved Office changes, metadata updates, rename/move, version pruning, protected-file behavior, and concurrent snapshots remain untested. P0-09 requires a named disposition reviewer and ordinary-editor, records-custodian, and privileged-admin role fixtures; no label was applied and edit/delete/unlock behavior is unproven. The new live probes were run from uncommitted working-tree changes, not a tested commit."
     },
     {
       "task_id": "06",
