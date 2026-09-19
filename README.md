@@ -3,7 +3,7 @@
 STE AuditSphere Ops is the controlled build plan for a production audit-practice platform covering client onboarding, evidence collection, accounting, audit execution, review, release, records protection, recovery, and operational handover.
 
 > [!IMPORTANT]
-> This repository currently contains specifications, not an implemented production application. The 72 numbered documents define future work and acceptance evidence; their presence does not mean a capability is built, accepted, deployed, licensed, or approved for production use.
+> This repository is primarily a controlled build plan. Besides the specifications, a fast-tracked WBS-09 source scaffold now exists: the `audit_practice` app skeleton, the guarded `scripts/production` harness, the disposable `scripts/p0` proofs and probes, pinned `infra/production` configuration, and a `production-ci.yml` workflow. Only tasks 01–04 are `ACCEPTED` (see [execution status](docs/production/execution-status.json)); task 05 is `BLOCKED`, WBS-09 is not accepted, and no business workflow, identity, accounting, or release capability is implemented. Presence of a file or scaffold does not mean a capability is built, accepted, deployed, licensed, or approved for production use.
 
 ## Project objectives
 
@@ -25,7 +25,7 @@ The governing execution contract and complete WBS index are in [task 01](docs/01
 Its essential operating context is:
 
 - **Mission:** implement the smallest correct change with professional authority, exact evidence, and no invented approvals, credentials, methodology, or production readiness.
-- **Candidate stack:** Frappe/ERPNext 16, Python 3.14, Node 24 LTS, MariaDB 11.8, Redis 6+, Frappe Desk plus native Jinja/HTML/CSS/JavaScript, Entra OIDC/OAuth2, Microsoft Graph v1.0, SharePoint, and Purview. These are candidate guidance, not approved pins; WBS 03 must verify compatibility and record exact versions, hashes, locks, and image digests.
+- **Candidate stack:** Frappe/ERPNext 16, Python 3.14, Node 24 LTS, MariaDB 11.8, Redis 6+, Frappe Desk plus native Jinja/HTML/CSS/JavaScript, Entra OIDC/OAuth2, Microsoft Graph v1.0, SharePoint, and Purview. WBS 03 is accepted and records the exact pins, source commits, and image digests in `infra/production/versions.json` (Frappe v16.34.0, ERPNext v16.35.0, Python 3.14.7, Node 24.21.0, MariaDB 11.8.9, Redis 6.2.16, and Bench 5.31.0); the live clean-install, migrate, and build compatibility proof remains outstanding under the current task-05 blockers.
 - **Task sequence:** R0 uses standard-library contracts/validators and disposable P0 proofs; R1 builds the Frappe app and secure core; R2 adds onboarding and PBC; R3 adds accounting and audit execution; R4 adds records/release/recovery; R5 completes operations, traceability, pilot, and authorized handover.
 - **Non-negotiable invariants:** one Frappe modular monolith; server-derived scope and authority; separation of duties; atomic state/history/generation/outbox commits; exact snapshots/manifests; bounded idempotent jobs; independent checkpoint and epoch checks; preserved issued history; exact `Decimal` arithmetic; and separate production, local-only, and shared-demo stores.
 - **Verification and authority:** schema before domain, adapters/API before UI, and focused real-environment tests before acceptance. Mocks, dry runs, zero tests, or skipped live proofs are not passes. Merge, deployment, tenant/records changes, external sends, and irreversible operations require separate scoped authorization.
@@ -172,7 +172,7 @@ See [task 01](docs/01-execution-contract-and-baseline.md) for the complete 72-ta
 
 ## Repository layout
 
-Current repository:
+Current repository (structure present in source; presence is not acceptance evidence):
 
 ```text
 README.md                 Project overview and roadmap
@@ -182,7 +182,7 @@ SYSTEM_PROMPT.md          Workspace-local engineering-agent mission and operatin
 docs/01-*.md … 72-*.md   Ordered WBS task specifications
 ```
 
-Planned target paths, created only by their owning tasks:
+A partial source scaffold already exists: `production/audit_practice/` (the WBS-09 app skeleton — package initialization, `audit_operations/`, and `tests/` only), `scripts/wbs/`, `scripts/p0/`, `scripts/production/`, `infra/production/`, `spikes/p0/`, and `.github/workflows/production-ci.yml`. The remaining capability paths below are created only by their owning tasks:
 
 ```text
 production/audit_practice/                         Frappe custom app
@@ -197,7 +197,7 @@ docs/production/                                   Baseline, status, decisions, 
 
 The existing `nirzaf/steauditqts` Vue/Vite/Cloudflare demonstrator is a pinned, read-only baseline for synthetic walkthrough behavior. It is not the production persistence, identity, evidence, or approval system, and its state must never be promoted into production.
 
-Task 01 originally names that demonstrator repository as its execution target. Before task 01 can be accepted in this repository, the owner-approved mapping to `nirzaf/steauditsphereops` must be recorded as required by [AGENTS.md](AGENTS.md); the mismatch must not be resolved by copying or modifying the demonstrator.
+Task 01 originally named that demonstrator repository as its execution target. The owner-approved mapping from that inherited target to `nirzaf/steauditsphereops` is recorded in [source-baseline.md](docs/production/source-baseline.md), and task 01 is `ACCEPTED`; the mismatch was resolved without copying or modifying the demonstrator.
 
 ## Working with the WBS
 

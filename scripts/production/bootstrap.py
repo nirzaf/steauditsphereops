@@ -695,7 +695,13 @@ def _node_requirements_commands(
         ),
         (
             bench_root / "apps" / "erpnext" / "banking",
-            ("yarn", "install", "--check-files", "--frozen-lockfile"),
+            (
+                "yarn",
+                "install",
+                "--check-files",
+                "--frozen-lockfile",
+                "--ignore-scripts",
+            ),
         ),
     )
 

@@ -314,7 +314,13 @@ class SkeletonTests(unittest.TestCase):
                 ),
                 (
                     Path(".local/bench/apps/erpnext/banking"),
-                    ("yarn", "install", "--check-files", "--frozen-lockfile"),
+                    (
+                        "yarn",
+                        "install",
+                        "--check-files",
+                        "--frozen-lockfile",
+                        "--ignore-scripts",
+                    ),
                 ),
             ),
         )

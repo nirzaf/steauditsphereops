@@ -97,7 +97,7 @@ steauditsphereops/
 ├── cubic.yaml                         # only when governance creates it
 ├── .github/
 │   └── workflows/
-│       └── production-ci.yml          # WBS 09, not assumed present
+│       └── production-ci.yml          # WBS 09 scaffold (present in source; not accepted)
 │
 ├── docs/
 │   ├── 01-execution-contract-and-baseline.md
@@ -145,7 +145,7 @@ Frappe must be proven to mount or install `APP_ROOT` into the ignored Bench. The
 
 ## 4. Production app layout
 
-All paths below are under `production/audit_practice/`. Frappe metadata, controllers, and package initialization stay together. Capability packages are ordinary Python packages; they are not separately deployed services or Frappe apps.
+All paths below are under `production/audit_practice/`. Frappe metadata, controllers, and package initialization stay together. Capability packages are ordinary Python packages; they are not separately deployed services or Frappe apps. Currently only the package initialization, `audit_operations/`, and `tests/` exist as the fast-tracked WBS-09 scaffold; the capability packages below are the target organization created by their owning tasks.
 
 ```text
 production/audit_practice/
