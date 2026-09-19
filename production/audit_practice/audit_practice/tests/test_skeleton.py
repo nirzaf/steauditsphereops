@@ -213,6 +213,30 @@ class SkeletonTests(unittest.TestCase):
         self.assertIn("Copyright (c) 2026 STE AuditSphere Ops", license_text)
         self.assertIn("Permission is hereby granted, free of charge", license_text)
 
+    def test_shell_wrapper_checkout_is_executable_and_lf(self) -> None:
+        wrapper = REPO_ROOT / "scripts" / "production" / "dev"
+        source = wrapper.read_bytes()
+        self.assertTrue(source.startswith(b"#!/usr/bin/env sh\n"))
+        self.assertNotIn(b"\r", source)
+        entry = self._git(REPO_ROOT, "ls-files", "--stage", "--", "scripts/production/dev")
+        self.assertEqual(entry.stdout.split()[0], "100755")
+
+        if os.name == "posix":
+            self.assertTrue(os.access(wrapper, os.X_OK))
+            environment = os.environ.copy()
+            environment["PYTHON"] = sys.executable
+            result = subprocess.run(
+                [str(wrapper), "not-a-command"],
+                cwd=REPO_ROOT,
+                env=environment,
+                check=False,
+                capture_output=True,
+                text=True,
+                timeout=15,
+            )
+            self.assertEqual(result.returncode, 2)
+            self.assertIn("invalid choice", result.stderr)
+
     def test_wrapper_rejects_unsupported_subcommand(self) -> None:
         result = subprocess.run(
             [sys.executable, str(BOOTSTRAP_SCRIPT), "not-a-command"],
