@@ -95,22 +95,24 @@ which includes v16.34.0. The [official Frappe Docker quick-start](https://github
 uses MariaDB 11.8 and Redis 6.2. Exact source tags, commits, runtime patches,
 and image digests are recorded in `versions.json`.
 
-These checks establish a release-metadata-compatible candidate, not a tested
-Frappe runtime. After the 2026-09-18 restart, WSL 2.7.14.0 with kernel
-6.18.33.2-2 and default WSL version 2 was verified. Docker Desktop
-4.91.0.239619, Engine 29.8.0, and Compose 5.5.1 were verified, and
-`docker run --rm hello-world` passed. Ubuntu 24.04 is installed, but its
-first-run account setup is still pending; Docker integration from Ubuntu has
-not been tested. The selected Windows Python 3.14.7 reports pip 26.2.1; Node
-24.19.0/npm 11.17.0 are below their pins, and Yarn is unavailable. Bench
-5.31.0 cannot start on native Windows because its CLI imports the POSIX-only
-`pwd` module. The Linux clean-install, repeated bootstrap/migrate, focused
-Frappe test, and build proof is still required. The existing WBS-04 POC compose
-file remains pinned to the earlier v15 runtime; its separate revalidation is
-required before v16 P0 evidence can be claimed. The WBS-04 spike package
-metadata also still declares Python `>=3.10,<3.14` and must be revalidated
-against the v16 runtime. A toolchain mismatch blocks feasibility work; it is
-not resolved by changing the demo package lockfile or claiming unrun proof.
+These checks establish a release-metadata-compatible candidate. After the
+2026-09-19 restart, WSL 2.7.14.0 with kernel 6.18.33.2-2 and default WSL
+version 2 was verified. Ubuntu 24.04 is running and its Docker integration is
+verified through the production wrapper. Docker Desktop 4.91.0.239619,
+Engine 29.8.0, and Compose 5.5.1 were verified. Bench 5.31.0 runs from the
+pinned Linux environment; it cannot start on native Windows because its CLI
+imports the POSIX-only `pwd` module. The selected Windows Python 3.14.7
+reports pip 26.2.1, while the wrapper uses the pinned Linux runtime.
+
+The 2026-09-19 disposable prototype run passed `doctor`, `bootstrap-test`,
+`migrate-test`, the focused Frappe bootstrap test (2/2), the structural
+Frappe harness test (30/30), and `build`. These runs use ignored local state
+under `.local`; they do not by themselves reaccept WBS-03 because a clean
+Linux install and independent review still need to be recorded. The existing
+WBS-04 POC compose file remains pinned to the earlier v15 runtime; its separate
+revalidation is required before v16 P0 evidence can be claimed. The WBS-04
+spike package metadata also still declares Python `>=3.10,<3.14` and must be
+revalidated against the v16 runtime.
 
 ## Revalidation checks
 
@@ -125,9 +127,22 @@ The POC dependency lock resolved 13 packages and passed a hash-required
 Linux-targeted install into an ignored directory; pip 25.3 also hash-checked
 and downloaded the compatible Windows wheels.
 
-The source checks and scaffold suite do not prove a live Frappe runtime. Docker
-and WSL package installation are verified, but Ubuntu first-run setup is still
-pending. The Linux clean install, repeated bootstrap/migrate, focused Frappe
-test, and build therefore remain unrun. The system Python launcher also fails
-in isolated mode; the structural suite was run with uv-managed CPython 3.14.7
-instead.
+The source checks and scaffold suite are now supplemented by the disposable
+Linux Frappe run above. The system Python launcher still cannot select the
+pinned 3.12 compatibility helper, so the standalone P0 validators ran with
+the installed pinned CPython 3.12.11 executable and the structural suite also
+passed inside Bench's pinned CPython 3.14.7 environment.
+
+Prototype command results from Ubuntu 24.04 under WSL 2 on 2026-09-19:
+
+```text
+python3 scripts/wbs/check_versions.py infra/production/versions.json => PASS
+python3 scripts/wbs/validate_baseline.py --root . => PASS
+python3 scripts/wbs/validate_contracts.py --root . => PASS
+./scripts/production/dev doctor => PASS
+./scripts/production/dev bootstrap-test => PASS
+./scripts/production/dev migrate-test => PASS
+./scripts/production/dev test audit_practice.tests.test_bootstrap => 2/2 PASS
+./scripts/production/dev test audit_practice.tests.test_skeleton => 30/30 PASS
+./scripts/production/dev build => PASS
+```
