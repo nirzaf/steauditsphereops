@@ -29,6 +29,8 @@ GRAPH_ORIGIN = "https://graph.microsoft.com"
 GRAPH_BASE = f"{GRAPH_ORIGIN}/v1.0"
 GRAPH_RESOURCE_ID = "00000003-0000-0000-c000-000000000000"
 STANDARD_OIDC_SCOPES = frozenset({"openid", "profile", "email"})
+ALLOWED_DELEGATED_SCOPES = frozenset({"user.read", "sites.selected"})
+REQUIRED_IDENTITY_SCOPE = "user.read"
 MAX_CONFIG_BYTES = 16 * 1024
 MAX_TOKEN_BYTES = 64 * 1024
 MAX_RESPONSE_BYTES = 64 * 1024
@@ -53,6 +55,7 @@ class Fixture:
 class ProbeConfig:
     tenant_id: str
     client_id: str
+    permission_names: tuple[str, ...]
     fixtures: tuple[Fixture, ...]
 
 
@@ -106,8 +109,21 @@ def parse_config(value: object) -> ProbeConfig:
     client_id = _guid(value.get("client_id"), "client_id")
     if value.get("auth_mode") != "delegated":
         raise ConfigError("P0-02 subject checks require the owner-selected delegated identity")
-    if value.get("permission_names") != ["User.Read"]:
-        raise ConfigError("P0-02 subject checks require the exact User.Read permission")
+    permission_names = value.get("permission_names")
+    if (
+        not isinstance(permission_names, list)
+        or not permission_names
+        or any(
+            not isinstance(name, str)
+            or name.casefold() not in ALLOWED_DELEGATED_SCOPES
+            for name in permission_names
+        )
+        or len({name.casefold() for name in permission_names}) != len(permission_names)
+        or REQUIRED_IDENTITY_SCOPE not in {name.casefold() for name in permission_names}
+    ):
+        raise ConfigError(
+            "P0-02 subject checks require User.Read and only the approved delegated scope set"
+        )
 
     bindings = value.get("fixtures")
     if not isinstance(bindings, dict) or set(bindings) != set(REQUIRED_FIXTURES):
@@ -133,7 +149,7 @@ def parse_config(value: object) -> ProbeConfig:
     if len({fixture.user_principal_name.casefold() for fixture in fixtures}) != len(fixtures):
         raise ConfigError("staff, Client X, and Client Y must use distinct current UPNs")
 
-    return ProbeConfig(tenant_id, client_id, tuple(fixtures))
+    return ProbeConfig(tenant_id, client_id, tuple(permission_names), tuple(fixtures))
 
 
 def load_local_config(path: Path = CONFIG_PATH) -> ProbeConfig:
@@ -203,9 +219,11 @@ def _token_matches_fixture(token: str, config: ProbeConfig, fixture: Fixture, no
             f"https://sts.windows.net/{config.tenant_id}/".casefold(),
         }
         # Microsoft adds standard OIDC identity scopes to delegated tokens.
-        # They do not grant additional Graph API permissions; reject every
-        # other scope so this remains an exact User.Read proof.
-        and graph_scopes == {"user.read"}
+        # They do not grant additional Graph API permissions. The approved
+        # identity fixture may carry Sites.Selected as well because the same
+        # P0 app is used for the separately bounded isolation proof; reject
+        # every other scope.
+        and graph_scopes == {name.casefold() for name in config.permission_names}
         and not claims.get("roles")
         and (identity_type is None or identity_type == "user")
         and type(expiry) is int
@@ -303,7 +321,7 @@ def run_probe(
         if not _token_matches_fixture(supplied_tokens[fixture.key], config, fixture, timestamp):
             return _base_result(
                 "BLOCKED",
-                "A delegated token did not match the approved tenant, app, User.Read scope, or configured subject; no Graph request was sent.",
+                "A delegated token did not match the approved tenant, app, scope set, or configured subject; no Graph request was sent.",
                 trace + ["provider-call:none"],
             )
 

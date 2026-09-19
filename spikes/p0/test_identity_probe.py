@@ -159,6 +159,17 @@ class IdentityProbeTests(unittest.TestCase):
         with self.assertRaises(identity_probe.ConfigError):
             identity_probe.parse_config(duplicate)
 
+    def test_approved_isolation_scope_can_be_carried_by_identity_fixture(self) -> None:
+        value = private_config()
+        value["permission_names"] = ["User.Read", "Sites.Selected"]
+        config = identity_probe.parse_config(value)
+        token = make_token("staff", scp="Sites.Selected User.Read openid profile email")
+        self.assertTrue(
+            identity_probe._token_matches_fixture(
+                token, config, config.fixtures[0], now=1000
+            )
+        )
+
     def test_missing_fixture_token_fails_before_provider_call(self) -> None:
         calls: list[object] = []
         result = identity_probe.run_probe(
