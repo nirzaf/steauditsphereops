@@ -59,6 +59,12 @@ class IdentityIsolationTests(unittest.TestCase):
     def test_client_cannot_export(self) -> None:
         self.assertEqual(access_decision(self.client_a, self.record_a, "export"), (False, "ACTION_NOT_ASSIGNED"))
 
+    def test_unknown_action_fails_closed(self) -> None:
+        self.assertEqual(
+            access_decision(self.client_a, self.record_a, "delete"),
+            (False, "ACTION_NOT_SUPPORTED"),
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+SUPPORTED_ACTIONS = frozenset({"read", "export", "share"})
+
 
 def subject_key(tenant_id: str, subject_id: str) -> str:
     if not tenant_id or not subject_id:
@@ -17,6 +19,8 @@ def scope_key(client_id: str, period: str) -> str:
 
 def access_decision(actor: dict[str, object], record: dict[str, object], action: str = "read") -> tuple[bool, str]:
     """Return a conservative decision for mock permission experiments."""
+    if action not in SUPPORTED_ACTIONS:
+        return False, "ACTION_NOT_SUPPORTED"
     if actor.get("disabled"):
         return False, "ACTOR_DISABLED"
     if actor.get("revoked"):
