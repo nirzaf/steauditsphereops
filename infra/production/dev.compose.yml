@@ -1,0 +1,31 @@
+services:
+  mariadb:
+    image: ${AUDIT_MARIADB_IMAGE:?bootstrap-test creates ignored local runtime.env}
+    environment:
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:?bootstrap-test creates ignored local runtime.env}
+    ports:
+      - "127.0.0.1:3307:3306"
+    volumes:
+      - type: bind
+        source: ${AUDIT_DB_DATA_PATH:?bootstrap-test creates ignored local runtime.env}
+        target: /var/lib/mysql
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+      start_period: 30s
+
+  redis:
+    image: ${AUDIT_REDIS_IMAGE:?bootstrap-test creates ignored local runtime.env}
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    ports:
+      - "127.0.0.1:16379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 15

@@ -1,0 +1,121 @@
+name: Production app scaffold CI
+
+on:
+  pull_request:
+    paths:
+      - "AGENTS.md"
+      - ".github/workflows/production-ci.yml"
+      - "infra/production/**"
+      - "production/audit_practice/**"
+      - "scripts/production/**"
+      - "scripts/wbs/check_versions.py"
+      - "scripts/wbs/validate_baseline.py"
+      - "docs/01-execution-contract-and-baseline.md"
+      - "docs/03-toolchain-and-version-contract.md"
+      - "docs/04-poc-harness-and-schema.md"
+      - "docs/08-r0-feasibility-exit.md"
+      - "docs/09-production-app-and-test-harness.md"
+      - "docs/production/execution-status.json"
+      - "docs/production/source-baseline.md"
+  push:
+    branches: [main, "agent/**"]
+    paths:
+      - "AGENTS.md"
+      - ".github/workflows/production-ci.yml"
+      - "infra/production/**"
+      - "production/audit_practice/**"
+      - "scripts/production/**"
+      - "scripts/wbs/check_versions.py"
+      - "scripts/wbs/validate_baseline.py"
+      - "docs/01-execution-contract-and-baseline.md"
+      - "docs/03-toolchain-and-version-contract.md"
+      - "docs/04-poc-harness-and-schema.md"
+      - "docs/08-r0-feasibility-exit.md"
+      - "docs/09-production-app-and-test-harness.md"
+      - "docs/production/execution-status.json"
+      - "docs/production/source-baseline.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: agent-issue-9-production-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  production:
+    name: Disposable Frappe app validation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    env:
+      AUDIT_SITE: auditflow-test.localhost
+      BENCH_ROOT: ${{ github.workspace }}/.local/bench
+
+    steps:
+      - name: Check out source without a persisted token
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up pinned Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.14.7"
+          check-latest: false
+
+      - name: Set up pinned Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24.21.0"
+          check-latest: false
+          package-manager-cache: false
+
+      - name: Cache public dependency downloads by pinned contract
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.cache/yarn
+          key: production-${{ runner.os }}-${{ hashFiles('infra/production/versions.json', 'infra/production/poc-requirements.txt', 'infra/production/poc-requirements.constraints.txt', 'infra/production/poc-requirements.lock.txt', 'production/audit_practice/pyproject.toml') }}
+
+      - name: Check toolchain contract
+        run: |
+          python scripts/wbs/check_versions.py infra/production/versions.json
+          python -m pip install --disable-pip-version-check --upgrade "pip==25.3"
+          python - <<'PY'
+          import json
+          import subprocess
+          import sys
+          from pathlib import Path
+
+          manifest = json.loads(Path("infra/production/versions.json").read_text())
+          bench = next(item for item in manifest["repositories"] if item["name"] == "bench")
+          requirement = f"frappe-bench @ git+{bench['url']}@{bench['commit']}"
+          subprocess.run(
+              [sys.executable, "-m", "pip", "install", "--disable-pip-version-check", requirement],
+              check=True,
+          )
+          PY
+          npm install --global "yarn@1.22.22"
+          python -m unittest production/audit_practice/audit_practice/tests/test_skeleton.py
+          python scripts/wbs/validate_baseline.py --root .
+
+      - name: Bootstrap the disposable site twice
+        run: |
+          ./scripts/production/dev bootstrap-test
+          ./scripts/production/dev bootstrap-test
+
+      - name: Verify the disposable runtime
+        run: ./scripts/production/dev doctor
+
+      - name: Migrate twice and test the installed app
+        run: |
+          ./scripts/production/dev migrate-test
+          ./scripts/production/dev migrate-test
+          ./scripts/production/dev test audit_practice.tests.test_bootstrap
+          ./scripts/production/dev test audit_practice.tests.test_skeleton
+
+      - name: Build the production app assets
+        run: ./scripts/production/dev build
