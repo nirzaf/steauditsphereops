@@ -614,7 +614,12 @@ def run_probe(
                     return _result("FAIL", "P0-03 unauthorized file content was readable; cross-client data leaked.", trace, config=config, identity_status=identity_status, sharepoint_status="FAIL")
                 return _result("FAIL", "P0-03 unauthorized content returned an unexpected HTTP status.", trace, config=config, identity_status=identity_status, sharepoint_status="FAIL")
 
-            search_response = transport(_search_request(resource, token), REQUEST_TIMEOUT_SECONDS, allowed)
+            # Search is the boundary under test. Read the bounded response for
+            # both allowed and denied requests so a 200 response cannot be
+            # mistaken for a denial merely because its body was discarded.
+            # The body is inspected only for the trusted item identity and is
+            # never copied into the result or evidence.
+            search_response = transport(_search_request(resource, token), REQUEST_TIMEOUT_SECONDS, True)
             trace.append(f"provider-call:{fixture_key}:{site_key}:search")
             if _unknown(search_response):
                 return _result("BLOCKED", "P0-03 search outcome was unknown; no leakage claim was recorded.", trace, config=config, identity_status=identity_status, sharepoint_status="BLOCKED")

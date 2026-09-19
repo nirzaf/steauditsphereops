@@ -257,6 +257,25 @@ class IsolationProbeTests(unittest.TestCase):
         self.assertEqual(result["sharepoint_isolation_status"], "FAIL")
         self.assertIn("broader than expected", result["outcome"])
 
+    def test_unauthorized_search_body_is_inspected_without_emitting_it(self) -> None:
+        calls: list[bool] = []
+
+        def search_transport(request, timeout, read_body):
+            if urlsplit(request.full_url).path.endswith("/search/query"):
+                calls.append(read_body)
+            return boundary_transport(request, timeout, read_body)
+
+        result = isolation_probe.run_probe(
+            config=valid_config(),
+            tokens=valid_tokens(),
+            transport=search_transport,
+            now=1000,
+        )
+        self.assertEqual(result["sharepoint_isolation_status"], "LIVE_PASS")
+        self.assertTrue(calls)
+        self.assertTrue(all(calls))
+        self.assertNotIn(TOKEN_MARKER, json.dumps(result, sort_keys=True))
+
     def test_unknown_provider_result_is_blocked(self) -> None:
         result = isolation_probe.run_probe(
             config=valid_config(),
