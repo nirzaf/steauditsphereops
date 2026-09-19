@@ -526,12 +526,33 @@ class SkeletonTests(unittest.TestCase):
         harness = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(harness)
 
-        windows_path = Path(r"C:\Users\DELL\repos\steauditsphereops\.local\production\mariadb")
+        # Forward slashes preserve the expected spelling on both test hosts.
+        windows_path = Path("C:/Users/DELL/repos/steauditsphereops/.local/production/mariadb")
         wsl_path = "/mnt/c/Users/DELL/repos/steauditsphereops/.local/production/mariadb"
         self.assertEqual(
             harness._resolve_runtime_data_path(wsl_path, host_os="nt"),
             windows_path.resolve(),
         )
+
+    def test_runtime_env_accepts_equivalent_windows_paths_on_wsl(self) -> None:
+        spec = importlib.util.spec_from_file_location(
+            "production_bootstrap_runtime_path", BOOTSTRAP_SCRIPT
+        )
+        self.assertIsNotNone(spec)
+        self.assertIsNotNone(spec.loader)
+        harness = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(harness)
+
+        wsl_path = Path("/mnt/c/Users/DELL/repos/steauditsphereops/.local/production/mariadb")
+        for windows_path in (
+            r"C:\Users\DELL\repos\steauditsphereops\.local\production\mariadb",
+            "C:/Users/DELL/repos/steauditsphereops/.local/production/mariadb",
+        ):
+            with self.subTest(path=windows_path):
+                self.assertEqual(
+                    harness._resolve_runtime_data_path(windows_path, host_os="posix"),
+                    wsl_path.resolve(),
+                )
 
     def test_compose_project_identity_is_stable_across_windows_and_wsl_paths(self) -> None:
         spec = importlib.util.spec_from_file_location(
