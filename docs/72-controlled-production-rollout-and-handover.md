@@ -12,7 +12,7 @@ Provide the final operator-gated rollout and handover procedure for the accepted
 
 **Execution gate:** file 71 and all listed technical prerequisites must be ACCEPTED; read the shared execution contract in [01](01-execution-contract-and-baseline.md). Do not import or call a future task's unimplemented service.
 
-**External prerequisites:** Explicit production change approval, independent records/security verification and the user-selected confirmation codeword; absent approval means BLOCKED, not completed.
+**External prerequisites:** Explicit production change approval and independent records/security verification; if either is absent, the task is BLOCKED, not completed.
 
 **Source grounding:** [Approved functional requirements and architecture, sections 1–27](https://docs.google.com/document/d/1W32RQd4pfetfNk8lANeM4NsdiZ1GW68aDBrBg4gdSxs); [AT/ET/BT/VT scenarios and P0 experiments](https://github.com/nirzaf/steauditqts/blob/2898e44f6732c8b37c31ddfbeab0e322d7574ffe/src/domain/traceability.js); [Microsoft Purview records management](https://learn.microsoft.com/en-us/purview/records-management).
 
@@ -30,7 +30,7 @@ All paths above are repository-relative. Create parent/package directories as ne
 
 1. First run read-only readiness/deployment plans and compare the approved image digest, migration set, environment bindings, credentials and service feature profile. Any material change after acceptance requires affected regression/capability checks and new review; do not deploy floating latest.
 
-2. A human operator obtains the required change approval and user-specified confirmation codeword before live deployment, migrations, grants, policy changes or externally effective sends. Execute only the scoped approved operations; the autonomous coding agent must not infer these permissions from completing this task file.
+2. A human operator obtains explicit scoped change approval before live deployment, migrations, grants, policy changes or externally effective sends. Execute only the scoped approved operations; completing this task file does not authorize them.
 
 3. Use a controlled rollout with explicit initial recipients/clients, backups, runtime epoch and independent checkpoint validation. Enable outbound capabilities separately only after direct scope/protection/records smoke checks. Do not promote synthetic invitations, decisions or release records into production.
 
