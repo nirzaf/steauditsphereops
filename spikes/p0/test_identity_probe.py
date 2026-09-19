@@ -198,6 +198,24 @@ class IdentityProbeTests(unittest.TestCase):
                 self.assertEqual(calls, [])
                 self.assertNotIn(token, json.dumps(result, sort_keys=True))
 
+    def test_standard_oidc_scopes_added_by_microsoft_are_allowed(self) -> None:
+        tokens = valid_tokens()
+        tokens["staff"] = make_token("staff", scp="User.Read openid profile email")
+        self.assertTrue(
+            identity_probe._token_matches_fixture(
+                tokens["staff"], valid_config(), valid_config().fixtures[0], now=1000
+            )
+        )
+
+        for extra_scope in ("offline_access", "Sites.ReadWrite.All"):
+            with self.subTest(extra_scope=extra_scope):
+                token = make_token("staff", scp=f"User.Read {extra_scope}")
+                self.assertFalse(
+                    identity_probe._token_matches_fixture(
+                        token, valid_config(), valid_config().fixtures[0], now=1000
+                    )
+                )
+
     def test_all_three_graph_me_bindings_are_a_partial_pass_only_and_are_redacted(self) -> None:
         tokens = valid_tokens()
         calls: list[tuple[str, str, str | None]] = []

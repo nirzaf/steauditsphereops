@@ -28,6 +28,7 @@ CONFIG_PATH = ROOT / ".local" / "p0" / "identity-live.json"
 GRAPH_ORIGIN = "https://graph.microsoft.com"
 GRAPH_BASE = f"{GRAPH_ORIGIN}/v1.0"
 GRAPH_RESOURCE_ID = "00000003-0000-0000-c000-000000000000"
+STANDARD_OIDC_SCOPES = frozenset({"openid", "profile", "email"})
 MAX_CONFIG_BYTES = 16 * 1024
 MAX_TOKEN_BYTES = 64 * 1024
 MAX_RESPONSE_BYTES = 64 * 1024
@@ -184,6 +185,8 @@ def _token_matches_fixture(token: str, config: ProbeConfig, fixture: Fixture, no
     issuer = claims.get("iss")
     scopes = claims.get("scp")
     scope_names = scopes.split() if isinstance(scopes, str) else []
+    normalized_scopes = {name.casefold() for name in scope_names}
+    graph_scopes = normalized_scopes - STANDARD_OIDC_SCOPES
     expiry = claims.get("exp")
     not_before = claims.get("nbf", 0)
     identity_type = claims.get("idtyp")
@@ -199,8 +202,10 @@ def _token_matches_fixture(token: str, config: ProbeConfig, fixture: Fixture, no
             f"https://login.microsoftonline.com/{config.tenant_id}/v2.0".casefold(),
             f"https://sts.windows.net/{config.tenant_id}/".casefold(),
         }
-        and len(scope_names) == 1
-        and scope_names[0].casefold() == "user.read"
+        # Microsoft adds standard OIDC identity scopes to delegated tokens.
+        # They do not grant additional Graph API permissions; reject every
+        # other scope so this remains an exact User.Read proof.
+        and graph_scopes == {"user.read"}
         and not claims.get("roles")
         and (identity_type is None or identity_type == "user")
         and type(expiry) is int
