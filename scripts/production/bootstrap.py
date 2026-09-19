@@ -1163,7 +1163,10 @@ def build() -> None:
 def serve_test(site: str) -> None:
     _require_site(site)
     _site_admin_password(create=False)
-    _bench_command(["--site", site, "serve", "--host", "127.0.0.1", "--port", "8000"])
+    # Frappe v16 `bench serve` exposes only `--port` (no `--host`/address flag);
+    # the Werkzeug dev server binds loopback (127.0.0.1) by default, so the
+    # disposable site stays local-only. Passing `--host` fails with exit code 2.
+    _bench_command(["--site", site, "serve", "--port", "8000"])
 
 
 def _parser() -> argparse.ArgumentParser:

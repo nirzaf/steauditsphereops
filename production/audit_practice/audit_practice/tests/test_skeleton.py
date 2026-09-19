@@ -397,6 +397,26 @@ class SkeletonTests(unittest.TestCase):
             harness._require_site("auditflow-test.localhost")
         ensure_services.assert_called_once_with()
 
+    def test_serve_test_binds_the_disposable_port_without_host_flag(self) -> None:
+        spec = importlib.util.spec_from_file_location("production_bootstrap", BOOTSTRAP_SCRIPT)
+        self.assertIsNotNone(spec)
+        self.assertIsNotNone(spec.loader)
+        harness = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(harness)
+
+        with (
+            mock.patch.object(harness, "_require_site"),
+            mock.patch.object(harness, "_site_admin_password", return_value="x" * 40),
+            mock.patch.object(harness, "_bench_command") as bench_command,
+        ):
+            harness.serve_test("auditflow-test.localhost")
+        argv = bench_command.call_args.args[0]
+        self.assertEqual(
+            argv,
+            ["--site", "auditflow-test.localhost", "serve", "--port", "8000"],
+        )
+        self.assertNotIn("--host", argv)
+
     def test_bench_apps_file_is_materialized_for_local_sources(self) -> None:
         spec = importlib.util.spec_from_file_location("production_bootstrap", BOOTSTRAP_SCRIPT)
         self.assertIsNotNone(spec)
