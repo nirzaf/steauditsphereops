@@ -21,6 +21,12 @@ def access_decision(actor: dict[str, object], record: dict[str, object], action:
         return False, "ACTOR_DISABLED"
     if actor.get("revoked"):
         return False, "ACTOR_REVOKED"
+    actor_identity = (actor.get("tenant_id"), actor.get("client_id"), actor.get("subject_id"))
+    if any(not isinstance(value, str) or not value.strip() for value in actor_identity):
+        return False, "ACTOR_IDENTITY_INCOMPLETE"
+    record_scope = (record.get("tenant_id"), record.get("client_id"))
+    if any(not isinstance(value, str) or not value.strip() for value in record_scope):
+        return False, "RECORD_SCOPE_INCOMPLETE"
     if actor.get("tenant_id") != record.get("tenant_id"):
         return False, "TENANT_MISMATCH"
     if actor.get("client_id") != record.get("client_id"):

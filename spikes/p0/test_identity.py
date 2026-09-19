@@ -27,6 +27,35 @@ class IdentityIsolationTests(unittest.TestCase):
         self.assertEqual(access_decision(revoked, self.record_a)[0], False)
         self.assertEqual(access_decision(disabled, self.record_a), (False, "ACTOR_DISABLED"))
 
+    def test_missing_actor_identity_fails_closed(self) -> None:
+        for field in ("tenant_id", "client_id", "subject_id"):
+            actor_without_field = dict(self.client_a)
+            actor_without_field.pop(field)
+            with self.subTest(field=field, state="missing"):
+                self.assertEqual(
+                    access_decision(actor_without_field, self.record_a),
+                    (False, "ACTOR_IDENTITY_INCOMPLETE"),
+                )
+            actor_with_blank_field = {**self.client_a, field: " "}
+            with self.subTest(field=field, state="blank"):
+                self.assertEqual(
+                    access_decision(actor_with_blank_field, self.record_a),
+                    (False, "ACTOR_IDENTITY_INCOMPLETE"),
+                )
+
+    def test_missing_record_scope_fails_closed(self) -> None:
+        for record in (
+            {},
+            {"tenant_id": "tenant-a"},
+            {"client_id": "client-a"},
+            {"tenant_id": "tenant-a", "client_id": " "},
+        ):
+            with self.subTest(record=record):
+                self.assertEqual(
+                    access_decision(self.client_a, record),
+                    (False, "RECORD_SCOPE_INCOMPLETE"),
+                )
+
     def test_client_cannot_export(self) -> None:
         self.assertEqual(access_decision(self.client_a, self.record_a, "export"), (False, "ACTION_NOT_ASSIGNED"))
 
