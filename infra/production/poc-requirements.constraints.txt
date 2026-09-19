@@ -1,0 +1,2 @@
+# Frappe 16.34.0 constrains PyJWT to ~=2.13.0; keep MSAL's transitive extra compatible.
+PyJWT==2.13.0

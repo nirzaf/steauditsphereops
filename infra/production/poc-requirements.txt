@@ -1,5 +1,5 @@
 # WBS-03 approved POC transport and artifact dependencies. Every version is pinned.
-requests==2.34.2
+requests==2.33.0
 msal==1.38.0
 rfc8785==0.1.4
 openpyxl==3.1.5
