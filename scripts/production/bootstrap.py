@@ -22,6 +22,8 @@ LOCAL_ROOT = REPO_ROOT / ".local"
 STATE_ROOT = LOCAL_ROOT / "production"
 SITE_NAME = "auditflow-test.localhost"
 SITE_NAME_RE = re.compile(r"[a-z0-9](?:[a-z0-9_.-]*[a-z0-9])?")
+WINDOWS_PATH_RE = re.compile(r"^([A-Za-z]):[\\/](.*)$")
+WSL_PATH_RE = re.compile(r"^/mnt/([A-Za-z])(?:/(.*))?$")
 ENV_FILE = STATE_ROOT / "runtime.env"
 SITE_ADMIN_PASSWORD_FILE = STATE_ROOT / "site-admin-password"
 MARIADB_DATA = STATE_ROOT / "mariadb"
@@ -399,16 +401,52 @@ def _bench_app(name: str) -> Path:
 
 
 def _compose_prefix() -> list[str]:
+    project_key = _canonical_path_alias(REPO_ROOT.resolve().as_posix())
     return [
         "docker",
         "compose",
         "--project-name",
-        "steauditsphere-" + hashlib.sha256(str(REPO_ROOT).encode()).hexdigest()[:10],
+        "steauditsphere-" + hashlib.sha256(project_key.encode()).hexdigest()[:10],
         "--env-file",
         str(ENV_FILE),
         "--file",
         str(COMPOSE_FILE),
     ]
+
+
+def _canonical_path_alias(value: str) -> str:
+    """Canonicalize Windows and WSL spellings for stable local identities."""
+    candidate = value.replace("\\", "/")
+    windows_match = WINDOWS_PATH_RE.fullmatch(candidate)
+    if windows_match:
+        drive, remainder = windows_match.groups()
+        candidate = f"/mnt/{drive.lower()}/{remainder}"
+    else:
+        wsl_match = WSL_PATH_RE.fullmatch(candidate)
+        if wsl_match:
+            drive, remainder = wsl_match.groups()
+            candidate = f"/mnt/{drive.lower()}/{remainder or ''}"
+    return candidate.rstrip("/").casefold()
+
+
+def _resolve_runtime_data_path(value: str, *, host_os: str | None = None) -> Path:
+    """Resolve a runtime.env path while allowing the two local host spellings."""
+    if not isinstance(value, str) or not value.strip():
+        return Path("").resolve()
+    platform = os.name if host_os is None else host_os
+    candidate = value.strip()
+    if platform == "nt":
+        match = WSL_PATH_RE.fullmatch(candidate)
+        if match:
+            drive, remainder = match.groups()
+            candidate = f"{drive.upper()}:/{remainder or ''}"
+    else:
+        match = WINDOWS_PATH_RE.fullmatch(candidate)
+        if match:
+            drive, remainder = match.groups()
+            remainder = remainder.replace("\\", "/")
+            candidate = f"/mnt/{drive.lower()}/{remainder}"
+    return Path(candidate).resolve()
 
 
 def _write_runtime_env(*, create: bool = True) -> dict[str, str]:
@@ -417,6 +455,7 @@ def _write_runtime_env(*, create: bool = True) -> dict[str, str]:
         raise HarnessError(f"Refusing symlinked MariaDB data directory: {MARIADB_DATA}")
     data_path = MARIADB_DATA.resolve()
     values: dict[str, str]
+    runtime_env_needs_rewrite = False
     if _is_link_like(ENV_FILE):
         raise HarnessError(f"Refusing symlinked runtime config: {ENV_FILE}")
     if ENV_FILE.exists():
@@ -429,8 +468,16 @@ def _write_runtime_env(*, create: bool = True) -> dict[str, str]:
         password = values.get("MARIADB_ROOT_PASSWORD", "")
         if not re.fullmatch(r"[0-9a-f]{48}", password):
             raise HarnessError("Existing runtime.env has an invalid local DB password.")
-        if Path(values.get("AUDIT_DB_DATA_PATH", "")).resolve() != data_path:
+        configured_data_path = _resolve_runtime_data_path(
+            values.get("AUDIT_DB_DATA_PATH", "")
+        )
+        if configured_data_path != data_path:
             raise HarnessError("Existing runtime.env points outside this disposable state path.")
+        # The ignored state file may have been created from the other local
+        # host (Windows or WSL). Rewrite only the equivalent path spelling so
+        # Docker Compose receives a path valid for the current host.
+        runtime_env_needs_rewrite = values.get("AUDIT_DB_DATA_PATH") != data_path.as_posix()
+        values["AUDIT_DB_DATA_PATH"] = data_path.as_posix()
     else:
         if not create:
             raise HarnessError("Local runtime.env is missing; run bootstrap-test first.")
@@ -468,6 +515,11 @@ def _write_runtime_env(*, create: bool = True) -> dict[str, str]:
     for key, expected in expected_values.items():
         if values.get(key) != expected:
             raise HarnessError(f"Existing runtime.env has an unexpected value for {key}.")
+    if runtime_env_needs_rewrite:
+        ENV_FILE.write_text(
+            "\n".join(f"{key}={value}" for key, value in values.items()) + "\n",
+            encoding="utf-8",
+        )
     if create:
         data_path.mkdir(parents=True, exist_ok=True)
     elif not data_path.is_dir():

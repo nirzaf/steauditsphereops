@@ -517,6 +517,38 @@ class SkeletonTests(unittest.TestCase):
         for key, value in expected.items():
             self.assertEqual(observed[key], value)
 
+    def test_runtime_env_accepts_equivalent_wsl_path_on_windows(self) -> None:
+        spec = importlib.util.spec_from_file_location(
+            "production_bootstrap_runtime_path", BOOTSTRAP_SCRIPT
+        )
+        self.assertIsNotNone(spec)
+        self.assertIsNotNone(spec.loader)
+        harness = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(harness)
+
+        windows_path = Path(r"C:\Users\DELL\repos\steauditsphereops\.local\production\mariadb")
+        wsl_path = "/mnt/c/Users/DELL/repos/steauditsphereops/.local/production/mariadb"
+        self.assertEqual(
+            harness._resolve_runtime_data_path(wsl_path, host_os="nt"),
+            windows_path.resolve(),
+        )
+
+    def test_compose_project_identity_is_stable_across_windows_and_wsl_paths(self) -> None:
+        spec = importlib.util.spec_from_file_location(
+            "production_bootstrap_compose_identity", BOOTSTRAP_SCRIPT
+        )
+        self.assertIsNotNone(spec)
+        self.assertIsNotNone(spec.loader)
+        harness = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(harness)
+
+        windows_path = r"C:\Users\DELL\repos\steauditsphereops"
+        wsl_path = "/mnt/c/Users/DELL/repos/steauditsphereops"
+        self.assertEqual(
+            harness._canonical_path_alias(windows_path),
+            harness._canonical_path_alias(wsl_path),
+        )
+
     def test_bench_commands_require_the_pinned_cli_version(self) -> None:
         spec = importlib.util.spec_from_file_location("production_bootstrap", BOOTSTRAP_SCRIPT)
         self.assertIsNotNone(spec)
