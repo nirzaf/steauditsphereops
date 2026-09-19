@@ -32,6 +32,8 @@ ERP_LOCAL_SOURCE = LOCAL_ROOT / "sources" / "erpnext"
 SAFE_SUBPROCESS_ENV = frozenset(
     {
         "APPDATA",
+        "COMMONPROGRAMFILES",
+        "COMMONPROGRAMFILES(X86)",
         "COMSPEC",
         "HOMEDRIVE",
         "HOMEPATH",
@@ -42,6 +44,9 @@ SAFE_SUBPROCESS_ENV = frozenset(
         "LOCALAPPDATA",
         "PATH",
         "PATHEXT",
+        "PROGRAMDATA",
+        "PROGRAMFILES",
+        "PROGRAMFILES(X86)",
         "SYSTEMDRIVE",
         "SYSTEMROOT",
         "TEMP",

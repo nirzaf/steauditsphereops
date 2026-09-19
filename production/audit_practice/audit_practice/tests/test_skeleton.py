@@ -491,6 +491,32 @@ class SkeletonTests(unittest.TestCase):
         self.assertEqual(environment["GIT_CONFIG_GLOBAL"], os.devnull)
         self.assertEqual(environment["GIT_CONFIG_NOSYSTEM"], "1")
 
+    def test_subprocess_environment_preserves_docker_plugin_system_paths(self) -> None:
+        spec = importlib.util.spec_from_file_location(
+            "production_bootstrap_env_paths", BOOTSTRAP_SCRIPT
+        )
+        self.assertIsNotNone(spec)
+        self.assertIsNotNone(spec.loader)
+        harness = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(harness)
+
+        expected = {
+            "PROGRAMDATA": r"C:\\ProgramData",
+            "PROGRAMFILES": r"C:\\Program Files",
+            "PROGRAMFILES(X86)": r"C:\\Program Files (x86)",
+            "COMMONPROGRAMFILES": r"C:\\Program Files\\Common Files",
+            "COMMONPROGRAMFILES(X86)": r"C:\\Program Files (x86)\\Common Files",
+        }
+        with mock.patch.dict(
+            os.environ,
+            expected,
+            clear=True,
+        ):
+            observed = harness._subprocess_environment()
+
+        for key, value in expected.items():
+            self.assertEqual(observed[key], value)
+
     def test_bench_commands_require_the_pinned_cli_version(self) -> None:
         spec = importlib.util.spec_from_file_location("production_bootstrap", BOOTSTRAP_SCRIPT)
         self.assertIsNotNone(spec)
