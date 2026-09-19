@@ -52,6 +52,12 @@ SITE_ID_RE = re.compile(r"^([A-Za-z0-9.-]+),([^,]+),([^,]+)$")
 GUID_RE = re.compile(r"^[0-9a-fA-F-]{36}$")
 GRAPH_ID_RE = re.compile(r"^[A-Za-z0-9._!~()\-]{1,512}$")
 PERMISSION_NAMES = ("Sites.Selected",)
+STANDARD_OIDC_SCOPES = frozenset({"openid", "profile", "email"})
+# The app requests User.Read to establish the delegated subject. Microsoft
+# includes that grant, and the standard OIDC scopes, in the same token as
+# Sites.Selected. Keep this allowlist explicit so broader Graph permissions
+# still fail closed.
+DELEGATED_AUXILIARY_SCOPES = frozenset({"user.read"})
 
 
 @dataclass(frozen=True)
@@ -295,6 +301,16 @@ def _token_claims(token: str) -> dict[str, object] | None:
     return claims if isinstance(claims, dict) else None
 
 
+def _delegated_scope_name(value: str) -> str:
+    """Normalize Microsoft Graph scope spellings without widening the proof."""
+
+    normalized = value.casefold()
+    graph_prefix = f"{GRAPH_ORIGIN}/".casefold()
+    if normalized.startswith(graph_prefix):
+        return normalized[len(graph_prefix) :]
+    return normalized
+
+
 def _claims_match(token: str, config: ProbeConfig, fixture: Fixture, now: int) -> bool:
     claims = _token_claims(token)
     if claims is None:
@@ -332,9 +348,15 @@ def _claims_match(token: str, config: ProbeConfig, fixture: Fixture, now: int) -
             return False
         scopes = claims.get("scp")
         scope_names = scopes.split() if isinstance(scopes, str) else []
+        normalized_scopes = {
+            _delegated_scope_name(scope) for scope in scope_names
+        }
+        graph_scopes = normalized_scopes - STANDARD_OIDC_SCOPES
+        required_scopes = {name.casefold() for name in config.permission_names}
+        allowed_scopes = required_scopes | DELEGATED_AUXILIARY_SCOPES
         return (
             token_subject == fixture.object_id
-            and set(scope_names) == set(config.permission_names)
+            and required_scopes <= graph_scopes <= allowed_scopes
             and claims.get("idtyp") == "user"
             and "roles" not in claims
         )

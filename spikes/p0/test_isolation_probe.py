@@ -173,6 +173,7 @@ class IsolationProbeTests(unittest.TestCase):
         )
         self.assertEqual(result["status"], "BLOCKED")
         self.assertEqual(calls, [])
+
         invalid_tokens = valid_tokens()
         invalid_tokens["client_x"] = make_token("client_x", tid="dddddddd-dddd-4ddd-8ddd-dddddddddddd")
         result = isolation_probe.run_probe(
@@ -183,6 +184,35 @@ class IsolationProbeTests(unittest.TestCase):
         )
         self.assertEqual(result["status"], "BLOCKED")
         self.assertEqual(calls, [])
+
+    def test_microsoft_delegated_auxiliary_scopes_are_bounded(self) -> None:
+        microsoft_token = make_token(
+            "staff",
+            scp="https://graph.microsoft.com/Sites.Selected User.Read openid profile email",
+        )
+        self.assertTrue(
+            isolation_probe._claims_match(
+                microsoft_token,
+                valid_config(),
+                valid_config().fixtures[0],
+                1000,
+            )
+        )
+
+        for scope in ("Sites.Read.All", "offline_access", "Mail.Read"):
+            with self.subTest(scope=scope):
+                token = make_token(
+                    "staff",
+                    scp=f"Sites.Selected User.Read openid profile email {scope}",
+                )
+                self.assertFalse(
+                    isolation_probe._claims_match(
+                        token,
+                        valid_config(),
+                        valid_config().fixtures[0],
+                        1000,
+                    )
+                )
 
     def test_all_read_only_boundaries_pass_but_aggregate_remains_blocked(self) -> None:
         result = isolation_probe.run_probe(
