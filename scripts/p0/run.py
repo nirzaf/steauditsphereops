@@ -133,6 +133,92 @@ def live(suite: str) -> tuple[str, str, list[str], dict[str, object] | None]:
         # Entra subject matching is a partial P0-02 subproof; WBS-05 needs
         # Frappe authorization and the remaining identity/isolation cases too.
         return status, safe_outcome, trace + probe_trace, observation
+    if suite == "isolation":
+        probe_path = ROOT / "scripts/p0/isolation_probe.py"
+        spec = importlib.util.spec_from_file_location("p0_isolation_probe", probe_path)
+        if spec is None or spec.loader is None:
+            return "FAIL", "P0-03 isolation probe module could not be loaded.", trace + ["executor-load:failed"], None
+        probe = importlib.util.module_from_spec(spec)
+        try:
+            sys.modules[spec.name] = probe
+            spec.loader.exec_module(probe)
+            result = probe.run_probe()
+        except Exception as error:
+            return (
+                "FAIL",
+                "P0-03 isolation probe raised an internal error; details are withheld from evidence.",
+                trace + [f"executor-error:{type(error).__name__}"],
+                None,
+            )
+        if not isinstance(result, dict):
+            return "FAIL", "P0-03 isolation probe returned an invalid result.", trace + ["executor-result:invalid"], None
+        status = result.get("status")
+        outcome = result.get("outcome")
+        probe_trace = result.get("trace", [])
+        sharepoint_status = result.get("sharepoint_isolation_status")
+        identity_status = result.get("identity_context_status", "NOT_RUN_EXTERNAL_PREREQUISITE")
+        frappe_status = result.get("frappe_authorization_status")
+        revocation_status = result.get("revocation_status")
+        allowed_trace = {
+            "executor:sharepoint-isolation-read-only-v1",
+            "provider-call:none",
+        }
+        operation_trace = {
+            f"provider-call:{fixture}:{site}:{operation}"
+            for fixture in ("staff", "client_x", "client_y")
+            for site in ("client_x", "client_y", "unrelated")
+            for operation in ("site-metadata", "item-metadata", "content", "search")
+        }
+        safe_keys = {
+            "api_version",
+            "auth_context",
+            "tenant_id_configured",
+            "tenant_verification",
+            "identity_context_status",
+            "sharepoint_isolation_status",
+            "frappe_authorization_status",
+            "revocation_status",
+        }
+        if (
+            status not in {"BLOCKED", "FAIL"}
+            or not isinstance(outcome, str)
+            or not outcome.startswith("P0-03")
+            or not isinstance(probe_trace, list)
+            or any(not isinstance(item, str) or item not in allowed_trace | operation_trace for item in probe_trace)
+            or not probe_trace
+            or probe_trace[0] != "executor:sharepoint-isolation-read-only-v1"
+            or sharepoint_status not in {"BLOCKED", "LIVE_PASS", "FAIL"}
+            or identity_status not in {"NOT_RUN_EXTERNAL_PREREQUISITE", "LIVE_PASS", "BLOCKED"}
+            or frappe_status != "NOT_RUN_EXTERNAL_PREREQUISITE"
+            or revocation_status != "NOT_RUN_EXTERNAL_PREREQUISITE"
+            or set(result) - {"status", "outcome", "trace"} - safe_keys
+            or (status == "FAIL") != (sharepoint_status == "FAIL")
+            or (sharepoint_status == "LIVE_PASS" and status != "BLOCKED")
+        ):
+            return "FAIL", "P0-03 isolation probe returned an invalid or unsupported result.", trace + ["executor-result:invalid"], None
+        # A missing private fixture is a valid fail-closed preflight outcome;
+        # it has no tenant metadata to expose and must not be upgraded to a
+        # provider observation.
+        if (
+            status == "BLOCKED"
+            and sharepoint_status == "BLOCKED"
+            and probe_trace == ["executor:sharepoint-isolation-read-only-v1", "provider-call:none"]
+            and not (set(result) - {"status", "outcome", "trace", "sharepoint_isolation_status", "frappe_authorization_status", "revocation_status"})
+        ):
+            return status, outcome, trace + probe_trace, None
+        if result.get("api_version") != "v1.0" or result.get("tenant_id_configured") is not True or result.get("tenant_verification") != "NOT_PROVEN_BY_THIS_PROBE":
+            return "FAIL", "P0-03 isolation probe returned invalid tenant metadata.", trace + ["executor-result:invalid"], None
+        auth_context = result.get("auth_context")
+        if (
+            not isinstance(auth_context, dict)
+            or set(auth_context) != {"mode", "permission_names", "source"}
+            or auth_context.get("mode") not in {"application", "delegated"}
+            or auth_context.get("permission_names") != ["Sites.Selected"]
+            or auth_context.get("source") != "private local fixture metadata; requires owner evidence review"
+        ):
+            return "FAIL", "P0-03 isolation probe returned invalid authorization metadata.", trace + ["executor-result:invalid"], None
+        observation = {key: result[key] for key in safe_keys if key in result}
+        return status, outcome, trace + probe_trace, observation
     if suite == "microsoft":
         probe_path = ROOT / "scripts/p0/microsoft_probe.py"
         spec = importlib.util.spec_from_file_location("p0_microsoft_probe", probe_path)
